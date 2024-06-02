@@ -13,13 +13,13 @@ export const HandComponent: React.FC<HandComponentProps> = ({
 }) => {
   return (
     <div className="flex w-full shrink-0 items-center justify-center gap-2">
-      {hand.cards.map((element) => (
-        <div className="relative h-24 max-w-16 flex-auto">
+      {hand.cards.map((element , index) => (
+        <div className="relative h-24 max-w-16 flex-auto" key = {index}>
           <CardComponent
             className="absolute"
             card={element}
             showFace={isPlayer}
-            selectable={isPlayer}            
+            selectable={isPlayer}  
           />
         </div>
       ))}

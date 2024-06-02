@@ -17,16 +17,13 @@ function getRankText(rank: Rank) {
   }
 }
 
-
-// const CardShadowComponent 
-
-
 type CardComponentProps = {
   card: CardModel;
   showFace: boolean;
   selectable?: boolean;
   className?: string;
   dropShadow?: boolean;
+  transparent?: boolean;
 };
 
 export const CardComponent: React.FC<CardComponentProps> = ({
@@ -34,7 +31,8 @@ export const CardComponent: React.FC<CardComponentProps> = ({
   showFace,
   className,
   selectable,
-  dropShadow
+  dropShadow,
+  transparent
 }) => {
 
   // selectable = selectable === undefined ? true : selectable 
@@ -42,6 +40,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({
 
   dropShadow = dropShadow ?? true;
   selectable = showFace && selectable;
+  transparent = transparent ?? false;
   
   const suitColorStyle = {
     ["hidden"]: !showFace,
@@ -57,9 +56,11 @@ export const CardComponent: React.FC<CardComponentProps> = ({
         "relative h-24 w-16 min-w-16 overflow-hidden rounded-lg transition-all duration-100 shadow-[0px_0px_2px_2px_rgba(10,10,10,0.04)]",
         className,
         {
+          ["opacity-25"]:
+          transparent,
           ["shadow-[0px_0px_2px_2px_rgba(10,10,10,0.2)]"]:
             dropShadow,
-          ["bg-[url('/assets/card-back-red.jpg')] bg-cover bg-center"]:
+          ["bg-[url('/assets/card-back-red-border.jpg')] bg-cover bg-center"]:
             !showFace,
           ["bg-white"]:
             showFace,

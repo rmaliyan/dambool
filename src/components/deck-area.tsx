@@ -14,15 +14,15 @@ export const DeckAreaComponent: React.FC<DeckAreaComponentProps> = ({
 }) => {
   return (
     <div className={cn("flex items-center justify-center gap-2", className)}>
-      <CardComponent card={deck.trumpCard} showFace={true} />
+      <CardComponent card={deck.trumpCard} showFace={true} transparent={!(deck.cards.length > 0)}/>
       <div className="flex items-center justify-center">
         {deck.cards.slice(1).map((element, index) => (
-          <div className="relative h-24 w-[0.5px] flex-auto">
+          <div className="relative h-24 w-[0.5px] flex-auto" key = {index}>
             <CardComponent
               className="absolute"
               card={element}
               showFace={false}
-              dropShadow={index == 0}
+              dropShadow={index == 0}         
             />
           </div>
         ))}

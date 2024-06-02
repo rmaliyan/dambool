@@ -28,3 +28,6 @@ export type DeckModel = {
   trumpCard: CardModel;
 }
 
+export type BeatenModel = {
+  cards: CardModel[];
+}

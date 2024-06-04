@@ -1,3 +1,5 @@
+import internal from "stream";
+
 export type Suit = "♠" | "♣" | "♥" | "♦";
 export type Rank = 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14;
 // Suit and Rank are TypeScript unions.
@@ -30,4 +32,17 @@ export type DeckModel = {
 
 export type BeatenModel = {
   cards: CardModel[];
+}
+
+
+export type State = "attacking" | "defending" | "finished"; 
+export type CurrentState = { turn:number; state:State };
+
+export type GameModel = {  
+  currentState: CurrentState;
+  playerList: number []; 
+  hands: HandModel[]; 
+  battleArea: BattleAreaModel;
+  deck: DeckModel;
+  beaten: BeatenModel;  
 }

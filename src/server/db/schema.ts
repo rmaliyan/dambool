@@ -8,8 +8,11 @@ import {
   text,
   timestamp,
   varchar,
+  json,
+  boolean
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import { GameModel } from "~/game-logic";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -19,24 +22,89 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const createTable = pgTableCreator((name) => `dambool_${name}`);
 
-export const posts = createTable(
-  "post",
+// export const posts = createTable(
+//   "post",
+//   {
+//     id: serial("id").primaryKey(),
+//     name: varchar("name", { length: 256 }),
+//     createdById: varchar("createdById", { length: 255 })
+//       .notNull()
+//       .references(() => users.id),
+//     createdAt: timestamp("created_at")
+//       .default(sql`CURRENT_TIMESTAMP`)
+//       .notNull(),
+//     updatedAt: timestamp("updatedAt"),
+//   },
+//   (example) => ({
+//     createdByIdIdx: index("createdById_idx").on(example.createdById),
+//     nameIndex: index("name_idx").on(example.name),
+//   })
+// );
+
+export const rooms = createTable(
+  "rooms",
   {
     id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("createdById", { length: 255 })
-      .notNull()
-      .references(() => users.id),
+    ownerId: integer("owner_id")
+      .notNull(),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updatedAt"),
-  },
-  (example) => ({
-    createdByIdIdx: index("createdById_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  })
-);
+    updatedAt: timestamp("updated_at"),
+  }
+)
+
+export const roomPlayers = createTable(
+  "room_players",
+  {
+    id: serial("id").primaryKey(),
+    roomId: integer("room_id")
+      .notNull()
+      .references(() => rooms.id),     
+    playerId: integer("player_id")
+      .notNull(),
+    playerName: varchar("player_name", { length: 255 })
+      .notNull(),
+  }
+)
+
+export const games = createTable (
+  "games",
+  {
+    id: serial("id").primaryKey(),     
+    roomId: integer("room_id")
+      .notNull()
+      .references(() => rooms.id), 
+    gameJson: json("game_json").$type<GameModel>()
+      .notNull(),
+    isFinished: boolean("is_finished")
+      .notNull(),
+    winnerId: integer("winner_id")
+  }
+)
+
+export const roomsRelations = relations(rooms, ({ many }) => ({
+  players: many(roomPlayers),
+  games: many(games),
+}));
+
+export const roomPlayersRelations = relations(roomPlayers, ({ one }) => ({
+  room: one(rooms, {
+   fields: [roomPlayers.roomId],
+   references: [rooms.id] 
+  }),
+}));
+
+export const gamesRelations = relations(games, ({one}) => ({
+  room: one(rooms, { 
+    fields: [games.roomId],
+    references: [rooms.id]
+  }),
+}))
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 
 export const users = createTable("user", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
@@ -47,6 +115,7 @@ export const users = createTable("user", {
   }).default(sql`CURRENT_TIMESTAMP`),
   image: varchar("image", { length: 255 }),
 });
+
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),

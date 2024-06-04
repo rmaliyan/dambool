@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import {
   HandComponent,
   BattleAreaComponent,
@@ -137,8 +138,11 @@ export default function Home() {
       </Head>
 
       <main className="bg-repeat] flex min-h-screen flex-row items-center justify-center bg-[url('/assets/background_table_tiled_small.jpg')]">
+      
 
-        <div className="container flex flex-row items-center justify-center gap-3">
+        <div className="container flex flex-row items-center justify-center gap-3"> 
+
+          <Link href="/create-room">Create Session</Link>
 
           <DeckAreaComponent className="pr-28" deck={testDeck2} />
 

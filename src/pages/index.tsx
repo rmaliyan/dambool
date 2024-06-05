@@ -137,12 +137,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="bg-repeat] flex min-h-screen flex-row items-center justify-center bg-[url('/assets/background_table_tiled_small.jpg')]">
+      <main className="bg-repeat flex min-h-screen flex-row items-center justify-center bg-[url('/assets/background_table_tiled_small.jpg')]">
       
 
         <div className="container flex flex-row items-center justify-center gap-3"> 
 
-          <Link href="/create-room">Create Session</Link>
+          <Link href="/api/create-room">Create Session</Link>
 
           <DeckAreaComponent className="pr-28" deck={testDeck2} />
 

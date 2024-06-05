@@ -1,15 +1,7 @@
 # todo
-- (Done) implement trump card transperency when deck is empty
-- (Done)implement beaten cards area
-- (Done) add generating keys for divs generated with maps (see console errors) 
-
-
-- Create room functionality and client / server connection 
-- Define Gamestate object
-- Persist gamestate object to db
-- Create list of client game actions 
-- Notify clients about game state change 
-  
+- [x] implement trump card transperency when deck is empty
+- [x] implement beaten cards area
+- [x] add generating keys for divs generated with maps (see console errors) 
 
 # Operations    
     │   
@@ -70,4 +62,13 @@
             └── Game state
 
 
-- Fix a bug, with a new user being added when the generated room page is refreshed
+- [x] Create room functionality and client / server connection 
+- [x] Define Gamestate object
+- [x] Create list of client game actions 
+- [x] Fix a bug, with a new user being added when the generated room page is refreshed
+
+- [ ] Notify clients about game state change 
+- [ ] Index page design (logo / start new game button)
+- [ ] read playerId from cookie and add to context
+- [ ] find a way to get room id from url and add to context (istead of manually pathing)
+- [ ] Implement create game TRPC Procedure

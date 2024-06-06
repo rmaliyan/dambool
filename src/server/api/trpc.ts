@@ -26,6 +26,7 @@ import { db } from "~/server/db";
 
 interface CreateContextOptions {
   session: Session | null;
+  playerId: number;
 }
 
 /**
@@ -42,6 +43,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     db,
+    playerId: opts.playerId,
   };
 };
 
@@ -54,11 +56,14 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
 
+  const playerId = parseInt(req.cookies["playerId"]!);
+
   // Get the session from the server using the getServerSession wrapper function
   const session = await getServerAuthSession({ req, res });
 
   return createInnerTRPCContext({
     session,
+    playerId
   });
 };
 

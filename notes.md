@@ -66,9 +66,12 @@
 - [x] Define Gamestate object
 - [x] Create list of client game actions 
 - [x] Fix a bug, with a new user being added when the generated room page is refreshed
+- [x] Index page design (logo / start new game button)
 
 - [ ] Notify clients about game state change 
-- [ ] Index page design (logo / start new game button)
 - [ ] read playerId from cookie and add to context
 - [ ] find a way to get room id from url and add to context (istead of manually pathing)
 - [ ] Implement create game TRPC Procedure
+- [ ] Find out the reason for the lag when starting new game
+
+- [ ] design a lobby, where owner sees connecting players and decides when to start a game

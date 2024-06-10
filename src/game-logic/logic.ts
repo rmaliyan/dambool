@@ -62,3 +62,4 @@ export function startGame(playerList: number[]): GameModel {
 
   return currentGame;
 }
+

@@ -74,4 +74,15 @@
 - [ ] Implement create game TRPC Procedure
 - [ ] Find out the reason for the lag when starting new game
 
-- [ ] design a lobby, where owner sees connecting players and decides when to start a game
+- [x] design a lobby, where owner sees connecting players and decides when to start a game
+
+
+- [] We shouldn't be able to start several games simultaniously
+- [] Before starting game we should verify there are more than 1 players
+- [] PLayer 2 shouldn't be able to start game
+- [] We should show different card hands to different players
+- [] Think of a loading before game
+
+
+-[] Create lobby component
+-[] create new endpoint in game.ts 

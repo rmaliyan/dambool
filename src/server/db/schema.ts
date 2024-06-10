@@ -65,6 +65,7 @@ export const roomPlayers = createTable(
       .notNull(),
     playerName: varchar("player_name", { length: 255 })
       .notNull(),
+    isReady: boolean("is_ready").notNull().default(false),
   }
 )
 

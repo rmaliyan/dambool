@@ -61,6 +61,7 @@
         └── output:
             └── Game state
 
+# todo
 
 - [x] Create room functionality and client / server connection 
 - [x] Define Gamestate object
@@ -77,12 +78,20 @@
 - [x] design a lobby, where owner sees connecting players and decides when to start a game
 
 
-- [] We shouldn't be able to start several games simultaniously
-- [] Before starting game we should verify there are more than 1 players
-- [] PLayer 2 shouldn't be able to start game
-- [] We should show different card hands to different players
-- [] Think of a loading before game
+- [ ] We shouldn't be able to start several games simultaniously
+- [x] Before starting game we should verify there are more than 1 players
+- [x] PLayer 2 shouldn't be able to start game
+- [ ] Think of a loading before game
 
 
--[] Create lobby component
--[] create new endpoint in game.ts 
+-[ ] Create lobby component
+-[ ] create new endpoint in game.ts 
+-[ ] add loserId field to players db games table
+-[ ] add date field to games table 
+
+
+- [ ] We should show different card hands to different players
+- [ ] Make placing player hands procedural based on player list
+- [ ] Add UI indication of wrong turn when attacking
+- [ ] When starting a new game check which hand has the smallest trump card and let them make the first turn
+- [ ] Turn all icons into font

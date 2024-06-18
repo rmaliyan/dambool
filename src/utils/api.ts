@@ -7,6 +7,9 @@
 import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
+import { ServerResponse } from "http";
+import { NextApiRequest } from "next";
+import { NextApiRequestCookies } from "next/dist/server/api-utils";
 import superjson from "superjson";
 
 import { type AppRouter } from "~/server/api/root";
@@ -66,3 +69,19 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
  * @example type HelloOutput = RouterOutputs['example']['hello']
  */
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
+
+export const getPlayerId = (request: { cookies: NextApiRequestCookies }) => {
+  if (!request.cookies["playerId"]) {
+    return undefined;
+  }
+  return parseInt(request.cookies["playerId"]!);
+};
+
+export const createPlayerId = (res: ServerResponse) => {
+  const id = Math.floor(Math.random() * Math.pow(2, 31));
+  res.setHeader(
+    "set-cookie",
+    `playerId=${id}; Max-Age=31536000; HttpOnly; Path=/`,
+  );
+  return id;
+};

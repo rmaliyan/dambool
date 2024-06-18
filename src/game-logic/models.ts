@@ -33,7 +33,7 @@ export type BeatenModel = {
 };
 
 export type State = "attacking" | "defending" | "finished";
-export type CurrentState = { turn: number; state: State };
+export type CurrentState = { turnCount: number; activePlayerId: number; state: State };
 
 export type GameModel = {
   currentState: CurrentState;

@@ -24,6 +24,7 @@ type CardComponentProps = {
   className?: string;
   dropShadow?: boolean;
   transparent?: boolean;
+  onClick?: () => void;  
 };
 
 export const CardComponent: React.FC<CardComponentProps> = ({
@@ -32,7 +33,8 @@ export const CardComponent: React.FC<CardComponentProps> = ({
   className,
   selectable,
   dropShadow,
-  transparent
+  transparent,  
+  onClick
 }) => {
 
   // selectable = selectable === undefined ? true : selectable 
@@ -51,7 +53,8 @@ export const CardComponent: React.FC<CardComponentProps> = ({
   const selectableStyle = "hover:z-50 hover:scale-110 hover:shadow-[0px_0px_3px_4px_rgba(10,10,10,0.2)] active:scale-90 active:shadow-[0px_0px_2px_1px_rgba(10,10,10,0.5)]";
 
   return (
-    <div
+    <div    
+      onClick = {onClick}       
       className={cn(
         "relative h-24 w-16 min-w-16 overflow-hidden rounded-lg transition-all duration-100 shadow-[0px_0px_2px_2px_rgba(10,10,10,0.04)]",
         className,

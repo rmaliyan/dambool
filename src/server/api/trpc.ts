@@ -15,6 +15,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { getPlayerId } from "~/utils/api";
 
 /**
  * 1. CONTEXT
@@ -56,14 +57,14 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
 
-  const playerId = parseInt(req.cookies["playerId"]!);
+  const playerId = getPlayerId(req)!;
 
   // Get the session from the server using the getServerSession wrapper function
   const session = await getServerAuthSession({ req, res });
 
   return createInnerTRPCContext({
     session,
-    playerId
+    playerId,
   });
 };
 

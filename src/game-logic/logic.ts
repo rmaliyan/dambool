@@ -21,16 +21,35 @@ function createDeck(): CardModel[] {
   return cards;
 }
 
-function shuffleDeck(cards: CardModel[]): DeckModel {
-  for (let i = 0; i < cards.length; i++) {
-    const tmp = cards[i]!;
-    const randIndex = Math.floor(Math.random() * cards.length);
-    cards[i] = cards[randIndex]!;
-    cards[randIndex] = tmp;
-  }
+////////////////////////////////////////////////////////
 
+const shuffleDeck = (cards: CardModel[]): DeckModel => {
+  for (let index: number = cards.length - 1; index > 0; index--) {
+    const randomIndex: number = Math.floor(Math.random() * index);
+
+    if (randomIndex === index) {
+      continue;
+    }
+
+    const tmp = cards[index];
+    cards[index] = cards[randomIndex]!;
+    cards[randomIndex] = tmp!;
+  }
   return { cards: cards, trumpCard: cards[0]! };
-}
+};
+
+////////////////////////////////////////////////////////
+
+// function shuffleDeck(cards: CardModel[]): DeckModel {
+//   for (let i = 0; i < cards.length; i++) {
+//     const tmp = cards[i]!;
+//     const randIndex = Math.floor(Math.random() * cards.length);
+//     cards[i] = cards[randIndex]!;
+//     cards[randIndex] = tmp;
+//   }
+
+//   return { cards: cards, trumpCard: cards[0]! };
+// }
 
 function dealHand(deck: DeckModel, hand: HandModel): HandModel {
   if (hand.cards.length >= 6) {
@@ -50,7 +69,8 @@ export function startGame(playerList: number[]): GameModel {
 
   const currentGame: GameModel = {
     currentState: {
-      turn: 0,
+      turnCount: 0,
+      activePlayerId: playerList[0]!,
       state: "attacking",
     },
     playerList: playerList,
@@ -62,4 +82,3 @@ export function startGame(playerList: number[]): GameModel {
 
   return currentGame;
 }
-

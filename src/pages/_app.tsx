@@ -2,9 +2,7 @@ import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { type AppType } from "next/app";
 import { Inter } from "next/font/google";
-
 import { api } from "~/utils/api";
-
 import "~/styles/globals.css";
 import Head from "next/head";
 
@@ -25,11 +23,17 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={`flex min-h-screen items-center justify-center bg-[url('/assets/background_table_tiled_small.jpg')] bg-repeat font-sans ${inter.variable}`}>
+      <main className={`flex w-screen h-screen min-h-screen items-center bg-[url('/assets/background_table_tiled_small.jpg')] bg-repeat justify-center font-sans ${inter.variable}`}>
+            <Component {...pageProps} />
+      </main>
+
+    
+
+      {/* <main className={`flex min-h-screen items-center justify-center bg-[url('/assets/background_table_tiled_small.jpg')] bg-repeat font-sans ${inter.variable}`}>
           <div className="container flex items-center justify-center"> 
             <Component {...pageProps} />
           </div>
-      </main>
+      </main> */}
 
     </SessionProvider>
   );

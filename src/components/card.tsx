@@ -24,7 +24,8 @@ type CardComponentProps = {
   className?: string;
   dropShadow?: boolean;
   transparent?: boolean;
-  onClick?: () => void;  
+  smaller: boolean;
+  onClick?: () => void;
 };
 
 export const CardComponent: React.FC<CardComponentProps> = ({
@@ -33,43 +34,42 @@ export const CardComponent: React.FC<CardComponentProps> = ({
   className,
   selectable,
   dropShadow,
-  transparent,  
-  onClick
+  transparent,
+  smaller,
+  onClick,
 }) => {
-
-  // selectable = selectable === undefined ? true : selectable 
-  // selectable = selectable ?? true;     
+  // selectable = selectable === undefined ? true : selectable
+  // selectable = selectable ?? true;
 
   dropShadow = dropShadow ?? true;
   selectable = showFace && selectable;
   transparent = transparent ?? false;
-  
+  smaller = smaller ?? false;
+
   const suitColorStyle = {
     ["hidden"]: !showFace,
     ["text-rose-600 "]: card.suit == "♥" || card.suit == "♦",
     ["text-neutral-600"]: card.suit == "♠" || card.suit == "♣",
   };
 
-  const selectableStyle = "hover:z-50 hover:scale-110 hover:shadow-[0px_0px_3px_4px_rgba(10,10,10,0.2)] active:scale-90 active:shadow-[0px_0px_2px_1px_rgba(10,10,10,0.5)]";
+  const selectableStyle =
+    "hover:z-50 hover:scale-110 hover:shadow-[0px_0px_3px_4px_rgba(10,10,10,0.2)] active:scale-90 active:shadow-[0px_0px_2px_1px_rgba(10,10,10,0.5)]";
 
   return (
-    <div    
-      onClick = {onClick}       
+    <div
+      onClick={onClick}
       className={cn(
-        "relative h-24 w-16 min-w-16 overflow-hidden rounded-lg transition-all duration-100 shadow-[0px_0px_2px_2px_rgba(10,10,10,0.04)]",
+        "relative h-24 w-16 min-w-16 overflow-hidden rounded-lg shadow-[0px_0px_2px_2px_rgba(10,10,10,0.04)] transition-all duration-100",
         className,
         {
-          ["opacity-25"]:
-          transparent,
-          ["shadow-[0px_0px_2px_2px_rgba(10,10,10,0.2)]"]:
-            dropShadow,
+          ["opacity-25"]: transparent,
+          ["shadow-[0px_0px_2px_2px_rgba(10,10,10,0.2)]"]: dropShadow,
           ["bg-[url('/assets/card-back-red-border.jpg')] bg-cover bg-center"]:
             !showFace,
-          ["bg-white"]:
-            showFace,
-            [selectableStyle] :
-            selectable
-        }
+          ["bg-white"]: showFace,
+          ["scale-75"]: smaller,
+          [selectableStyle]: selectable,
+        },
       )}
     >
       <div className="absolute h-full w-full bg-transparent">

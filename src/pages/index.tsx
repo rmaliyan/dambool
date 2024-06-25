@@ -5,6 +5,7 @@ import {
   BattleAreaComponent,
   DeckAreaComponent,
   BeatenAreaComponent,
+  TextButton,
 } from "~/components";
 import {
   CardModel,
@@ -140,14 +141,9 @@ export default function Home() {
               src="/assets/dambool logo final-300.png"
               alt="dambool logo"
             ></img>
-            <Link
-              className="absolute z-50 mb-[-320px] w-44 select-none bg-gradient-to-r from-[#c74ee6] to-[#783fa7] bg-clip-text text-center font-mono text-6xl font-extrabold uppercase italic tracking-tighter text-transparent transition-all active:scale-100 group-hover:scale-110 group-hover:drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.2)]"
-              href="/api/create-room"
-            >
-              Start
-              <span className="absolute -bottom-1 left-1/2 h-1 w-0 bg-[#CA33EF] transition-all group-hover:w-3/6 group-hover:opacity-80"></span>
-              <span className="absolute -bottom-1 right-1/2 h-1 w-0 bg-[#CA33EF] transition-all group-hover:w-3/6 group-hover:opacity-80"></span>
-            </Link>
+
+            <TextButton buttonText="Start" hrefLink="/api/create-room" className="absolute z-50 mb-[-320px] text-6xl w-44"/>
+
           </div>
           <div className="absolute mb-[-800px] flex items-center">
             <span className="text-base font-semibold text-zinc-700 opacity-100">
@@ -164,24 +160,5 @@ export default function Home() {
         </div>
       </div>
     </>
-
-    // <>
-    //   <div className="absolute z-0 h-[400px] w-[500px] rounded-[130px] shadow-xl backdrop-blur"></div>
-    //   <div className="group container z-10 flex flex-col items-center justify-center">
-    //     <img
-    //       className="mb-[-50px] mt-[-50px] h-96"
-    //       src="/assets/dambool logo draft-300.png"
-    //       alt="dambool logo"
-    //     ></img>
-    //     <Link
-    //       className="font-mono text-4xl font-extrabold uppercase italic tracking-tighter text-purple-950 drop-shadow-[0px_1px_1px_rgba(255,255,255,0.6)] transition-all hover:scale-125 hover:text-purple-500 hover:drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.4)] active:scale-100"
-    //       href="/api/create-room"
-    //     >
-    //       Start
-    //     </Link>
-    //   </div>
-    // </>
   );
 }
-
-// "bg-[url('/assets/card-back-red-border.jpg')] bg-cover bg-center"

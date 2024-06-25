@@ -52,7 +52,7 @@ export const gameRouter = createTRPCRouter({
 
       // checking if the owner is present in player list and adding him there if he is not
       if (!playerList.includes(ownerId[0]?.ownerId)) {
-        playerList.push(ownerId[0]?.ownerId);
+        playerList.splice(0, 0, ownerId[0]?.ownerId);
       }
       //creating newGame object: creating deck, shuffling deck, dealing hands, etc.
       const newGame = startGame(playerList);
@@ -75,7 +75,7 @@ export const gameRouter = createTRPCRouter({
       //remove attacking card from player hand
       //push attacking card to battle-area first pair
       const gameObjectArray = await ctx.db
-        .select({ gameObject: games.gameJson })
+        .select({ gameObject: games.gameJson, gameId: games.id })
         .from(games)
         .where(
           and(eq(games.roomId, input.roomId), eq(games.isFinished, false)),
@@ -85,12 +85,60 @@ export const gameRouter = createTRPCRouter({
         throw new TRPCError({
           message: "Missing game object. No active games in this room.",
           code: "BAD_REQUEST",
-        });        
+        });
       }
 
       const gameObject = gameObjectArray[0]!.gameObject;
+      const gameId = gameObjectArray[0]!.gameId;
 
-      const hand = gameObject.hands[0]
+      if (ctx.playerId !== gameObject.currentState.activePlayerId) {
+        throw new TRPCError({
+          message: "Player attempting to play at wrong turn",
+          code: "BAD_REQUEST",
+        });
+      }
 
+      const handIndex = gameObject.playerList.indexOf(ctx.playerId);
+
+      const hand = gameObject.hands[handIndex]!;
+
+      if (input.cardIndex >= hand.cards.length) {
+        throw new TRPCError({
+          message: "Attacking card index exceeds number of cards in hand",
+          code: "BAD_REQUEST",
+        });
+      }
+
+      const attackCard = hand.cards[input.cardIndex]!;
+
+      const canAttack: boolean =
+        gameObject.battleArea.pairs.length === 0 ||
+        gameObject.battleArea.pairs.find(
+          (elem) =>
+            elem.attack.rank === attackCard.rank ||
+            elem.defence?.rank === attackCard.rank,
+        ) !== undefined;
+
+      if (!canAttack) {
+        throw new TRPCError({
+          message: "No cards in hand suitable for attack",
+          code: "BAD_REQUEST",
+        });
+      }
+
+      gameObject.battleArea.pairs.push({ attack: attackCard });
+
+      hand.cards.splice(input.cardIndex, 1);
+
+      gameObject.currentState.state = "defending";
+      gameObject.currentState.turnCount++;
+
+      gameObject.currentState.activePlayerId =
+        gameObject.playerList[(handIndex + 1) % gameObject.playerList.length]!;
+
+      await ctx.db
+        .update(games)
+        .set({ gameJson: gameObject })
+        .where(eq(games.id, gameId));
     }),
 });

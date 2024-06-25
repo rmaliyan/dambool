@@ -6,7 +6,8 @@ import { GameModel } from "~/game-logic";
 import { cn } from "~/utils/css";
 import { api, createPlayerId, getPlayerId } from "~/utils/api";
 import { GameComponent } from "~/components/game-area";
-import { IconElement } from "~/components";
+import { IconElement, TextButton } from "~/components";
+import Link from "next/link";
 
 export const getServerSideProps = (async (context) => {
   const roomId = parseInt(context.params!.id as string);
@@ -74,7 +75,7 @@ export const getServerSideProps = (async (context) => {
   }
 
   return {
-    props: { roomId, playerId, currentGame, currentRoomPlayers, ownerId},
+    props: { roomId, playerId, currentGame, currentRoomPlayers, ownerId },
   };
 }) satisfies GetServerSideProps<{}>;
 
@@ -107,19 +108,26 @@ export default function CreateRoom({
   const handleSetReady = () => {
     console.log(roomId);
     mutateSetReady({ roomId, isReadyState: !isReady });
-  };  
+  };
 
   return (
-    <main className="flex w-full items-center justify-center">     
-
+    <main className="flex w-full items-center justify-center">
       {error && <div className="text-red-600">{error.message}</div>}
 
-      <div className="mx-6 flex w-[420px] flex-col items-center justify-center rounded-xl bg-white">
-        <img
-          className="pointer-events: none w-[350px]"
-          src="/assets/dambool logo final-300.png"
-          alt="dambool logo"
-        ></img>
+      <div
+        className={cn(
+          "mx-6 flex w-[420px] flex-col items-center justify-center rounded-xl bg-white",
+          { ["hidden"]: currentGame !== null },
+        )}
+      >
+        <Link href="/" target="_blank">
+          <img
+            className="pointer-events: none w-[350px]"
+            src="/assets/dambool logo final-300.png"
+            alt="dambool logo"
+          ></img>
+        </Link>
+
         <div>
           <span className="font-semibold text-neutral-600">Game room</span>{" "}
           <span className="font-semibold text-[#B032E7]">{roomId}</span>
@@ -173,9 +181,11 @@ export default function CreateRoom({
               </div>
 
               <div
-                className={cn({                  
-                  ["text-neutral-600"]: player.isReady || player.playerId === ownerId,
-                  ["text-neutral-400"]: !player.isReady && player.playerId !== ownerId,
+                className={cn({
+                  ["text-neutral-600"]:
+                    player.isReady || player.playerId === ownerId,
+                  ["text-neutral-400"]:
+                    !player.isReady && player.playerId !== ownerId,
                   ["text-[#B032E7]"]: player.playerId === playerId,
                 })}
                 title={"PlayerId:" + player.playerId.toString()}
@@ -198,65 +208,34 @@ export default function CreateRoom({
           ))}
         </div>
 
-        {/* <hr className="my-2 h-px w-[70%] border-[1px] bg-neutral-300"></hr> */}
+        <div className="mb-4 mt-8 flex gap-10 pb-4 transition-all">
+          {isOwner && (
+            <TextButton
+              buttonText="Start Game"
+              onClick={handleStartGame}
+              className="text-2xl"
+            />
+          )}
 
-        <div className="mt-8 mb-4 flex gap-10">
-          {isOwner && <button onClick={handleStartGame}>Start Game</button>}
-
-          <button onClick={handleCopyRoomUrl}>Copy Room Url</button>
+          <TextButton
+            buttonText="Copy Url"
+            onClick={handleCopyRoomUrl}
+            className="text-2xl"
+          />
 
           {!isOwner && (
-            <button onClick={handleSetReady}>
-              {!isReady ? "Ready" : "Not Ready"}
-            </button>
+            <TextButton
+              buttonText={!isReady ? "Ready" : "Not Ready"}
+              onClick={handleSetReady}
+              className="text-2xl"
+            />
           )}
         </div>
       </div>
 
-      {currentGame && <GameComponent game={currentGame} />}
-
+      {currentGame && (
+        <GameComponent game={currentGame} roomId={roomId} playerId={playerId} />
+      )}
     </main>
-
-    // <main>
-    // {currentGame && <GameComponent game={currentGame} />}
-
-    // {error && <div className="text-red-600">{error.message}</div>}
-
-    // <div>
-    //   <div>{roomId}</div>
-    //   <div>{playerId}</div>
-    //   <div>{currentGame ? currentGame.toString() : "No current game"}</div>
-    //   <div>
-    //     {currentRoomPlayers.map((player, index) => (
-    //       <div className="flex flex-col" key={index}>
-    //         <div
-    //           className={cn({
-    //             ["invisible"]: !(player.playerId === ownerId),
-    //           })}
-    //         >
-    //           👑
-    //         </div>
-    //         {player.isReady && <div className="text-cyan-600">is ready</div>}
-    //         <div>player id:{player.playerId}</div>
-    //         <div
-    //           className={cn({
-    //             ["text-blue-700"]: player.playerId === playerId,
-    //           })}
-    //         >
-    //           player name: {player.playerName}
-    //         </div>
-    //       </div>
-    //     ))}
-    //   </div>
-
-    //   {isOwner && <button onClick={handleStartGame}>Start Game</button>}
-
-    //   {!isOwner && (
-    //     <button onClick={handleSetReady}>
-    //       {!isReady ? "Ready" : "Not Ready"}
-    //     </button>
-    //   )}
-    // </div>
-    // </main>
   );
 }

@@ -57,10 +57,11 @@ export const rooms = createTable(
 export const roomPlayers = createTable(
   "room_players",
   {
-    id: serial("id").primaryKey(),
+    id: serial("id").primaryKey(),    
     roomId: integer("room_id")
       .notNull()
-      .references(() => rooms.id),     
+      .references(() => rooms.id),    
+    peerId: varchar("player_peerId", { length: 64 }),
     playerId: integer("player_id")
       .notNull(),
     playerName: varchar("player_name", { length: 255 })

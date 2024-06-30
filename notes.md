@@ -84,14 +84,33 @@
 - [ ] Think of a loading before game
 
 
--[ ] Create lobby component
--[ ] create new endpoint in game.ts 
--[ ] add loserId field to players db games table
--[ ] add date field to games table 
+- [?] Create lobby component
+- [ ] create new endpoint in game.ts 
+- [ ] add loserId field to players db games table
+- [ ] add date field to games table 
 
 
-- [ ] We should show different card hands to different players
-- [ ] Make placing player hands procedural based on player list
+- [x] We should show different card hands to different players
+- [x] Make placing player hands procedural based on player list
 - [ ] Add UI indication of wrong turn when attacking
 - [ ] When starting a new game check which hand has the smallest trump card and let them make the first turn
 - [ ] Turn all icons into font
+
+- [x] Read about TCP
+- [x] Read about webRTC
+- [x] Add defend endpoint  /!\
+
+
+- [ ] Design a Ui flow for several active games in a room. lobby.tsx: 80-90
+
+
+
+
+
+
+
+
+
+
+
+A multiplayer online card game, built using a modern TypeScript stack, running on Node.js, using tRPC for API management, Zod for validation, and a SQL database with an ORM for data persistence.

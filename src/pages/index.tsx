@@ -135,10 +135,10 @@ export default function Home() {
         <div className="flex h-full w-full scale-90 items-center justify-center">
           <div className="group relative mt-[-50px] flex items-center justify-center">
             <div className="absolute h-[500px] w-[500px] rounded-full border-4 border-white border-opacity-5 shadow-xl backdrop-blur-[2px] transition-all group-hover:z-10 group-hover:scale-105 group-hover:backdrop-blur-[4px]"></div>
-            <div className="mb-[-50px] h-[600px] w-[600px] rounded-full bg-[url('/assets/background_table_tiled_small.jpg')] bg-repeat transition-all"></div>
+            <div className="mb-[-50px] h-[600px] w-[600px] rounded-full bg-[url('/assets/background_table_tiled_small.webp')] bg-repeat transition-all"></div>
             <img
               className="pointer-events: none absolute z-40 mt-[-140px] w-[950px] scale-150"
-              src="/assets/dambool logo final-300.png"
+              src="/assets/dambool logo final-300.webp"
               alt="dambool logo"
             ></img>
 

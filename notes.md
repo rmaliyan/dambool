@@ -102,6 +102,8 @@
 
 
 - [ ] Design a Ui flow for several active games in a room. lobby.tsx: 80-90
+- [ ] Add admin funct to delete users
+- [ ] In chrome text buttons  disapear on hover
 
 
 

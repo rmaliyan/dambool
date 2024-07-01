@@ -3,14 +3,8 @@ import { db } from "~/server/db";
 import { eq, and, count } from "drizzle-orm";
 import { rooms, games, roomPlayers } from "~/server/db/schema";
 import { GameModel } from "~/game-logic";
-import { cn } from "~/utils/css";
-import { api, createPlayerId, getPlayerId } from "~/utils/api";
+import { createPlayerId, getPlayerId } from "~/utils/api";
 import { GameComponent } from "~/components/game-area";
-import { IconElement, TextButton } from "~/components";
-import Link from "next/link";
-import Peer from "peerjs";
-import { usePeer } from "~/hooks/usePeer";
-import { useEffect } from "react";
 import { PeerContextProvider } from "~/components/peer-context-provider";
 import { LobbyComponent } from "~/components/lobby";
 
@@ -75,7 +69,7 @@ export const getServerSideProps = (async (context) => {
   return {
     props: { roomId, playerId, currentGame, ownerId },
   };
-}) satisfies GetServerSideProps<{}>;
+}) satisfies GetServerSideProps<NonNullable<unknown>>;
 
 export default function CreateRoom({
   roomId,

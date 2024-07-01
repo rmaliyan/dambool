@@ -24,7 +24,7 @@ type CardComponentProps = {
   className?: string;
   dropShadow?: boolean;
   transparent?: boolean;
-  smaller: boolean;
+  smaller?: boolean;
   onClick?: () => void;
 };
 

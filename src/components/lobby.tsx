@@ -31,15 +31,15 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
 
   const { mutateAsync: mutateSetReady, error: setReadyError } =
     api.roomLobby.setReady.useMutation({
-      onSuccess(input) {
-        utils.roomLobby.getPlayerList.invalidate();
+      async onSuccess(input) {
+        await utils.roomLobby.getPlayerList.invalidate();
         triggerEvent("lobby");
       },
     });
 
   const { mutate: mutatePlayerName } = api.roomLobby.setPlayerName.useMutation({
-    onSuccess() {
-      utils.roomLobby.getPlayerList.invalidate();
+    async onSuccess() {
+      await utils.roomLobby.getPlayerList.invalidate();
       triggerEvent("lobby");
     },
   });
@@ -68,15 +68,15 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
     mutateStartGame({ roomId });
   };
 
-  const handleCopyRoomUrl = () => {
-    navigator.clipboard.writeText(window.location.toString());
+  const handleCopyRoomUrl = async () => {
+    await navigator.clipboard.writeText(window.location.toString());
   };
 
   const handleSetReady = async () => {
     await mutateSetReady({ roomId, isReadyState: !isReady });
   };
 
-  const handleEditName = (playerName: string) => {    
+  const handleEditName = (playerName: string) => {
     const newName = prompt("Input new name", playerName);
     if (!newName || newName === "") {
       return;

@@ -15,8 +15,8 @@ export const BattleAreaComponent: React.FC<BattleAreaComponentProps> = ({battleA
         <div className = {cn("flex flex-row gap-4", className)}>
             {battleArea.pairs.map((element, index) => {
                 return (
-                  <div className="" key = {index}>
-                    <CardComponent className = "" card = {element.attack} showFace = {true}/>       
+                  <div key = {index}>
+                    <CardComponent card = {element.attack} showFace = {true}/>       
                     {element.defence ? <CardComponent className = "mx-8 -mt-16" card = {element.defence} showFace = {true}/> : null}            
                   </div>         
                 )

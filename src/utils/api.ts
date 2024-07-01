@@ -71,10 +71,10 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 export const getPlayerId = (request: { cookies: NextApiRequestCookies }) => {
-  if (!request.cookies["playerId"]) {
+  if (!request.cookies.playerId) {
     return undefined;
   }
-  return parseInt(request.cookies["playerId"]!);
+  return parseInt(request.cookies.playerId);  
 };
 
 export const createPlayerId = (res: ServerResponse) => {

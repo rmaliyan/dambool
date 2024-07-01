@@ -33,11 +33,10 @@ export function PeerContextProvider({
 
   const { mutateAsync: mutatePeerId } = api.roomLobby.setPeerId.useMutation();
 
-    const{roomLobby} = api.useUtils()
+  const { roomLobby } = api.useUtils();
 
-  const handleLobbyEvent = useCallback(() => {
-    console.log("Lobby event: " + roomId)
-    roomLobby.getPlayerList.invalidate({roomId})
+  const handleLobbyEvent = useCallback(async () => {
+    await roomLobby.getPlayerList.invalidate({ roomId });
   }, [roomId, roomLobby]);
 
   const connectedHandler = useCallback((connection?: DataConnection) => {
@@ -45,9 +44,10 @@ export function PeerContextProvider({
       console.log("No connection");
       return;
     }
-    connection.on("data", (data: any) => handleLobbyEvent());
+    // eslint-disable-next-line  @typescript-eslint/no-misused-promises
+    connection.on("data", (_) => handleLobbyEvent());
   }, []);
-  
+
   useEffect(() => {
     if (!isPeerIdSuccess) {
       return;
@@ -79,15 +79,13 @@ export function PeerContextProvider({
     setPeer(undefined);
   }
 
-
-
   useEffect(() => {
     if (peer === undefined) {
       return;
     }
 
-    const openHandler = (id: string) => {
-      mutatePeerId({ roomId: roomId, peerId: id });
+    const openHandler =  (id: string) => {
+      void mutatePeerId({ roomId: roomId, peerId: id });
       setIsOpen(true);
     };
 
@@ -125,11 +123,14 @@ export function PeerContextProvider({
       return;
     }
 
-    const peerConectionList = peer.connections as {[key:string]:DataConnection[]};
+    // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+    const peerConectionList = peer.connections as {
+      [key: string]: DataConnection[];
+    };
 
     for (const peerId in peerConectionList) {
       for (const connection of peerConectionList[peerId]!) {
-        connection.send(event);
+        void connection.send(event);
       }
     }
 

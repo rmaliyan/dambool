@@ -42,7 +42,7 @@ export const gameRouter = createTRPCRouter({
         );
       // checking if there are more than 1 ready players
       // excluding owner
-      if (readyPlayers.length! < 1) {
+      if (readyPlayers.length < 1) {
         throw new TRPCError({
           message: "Not enough players to start a game",
           code: "BAD_REQUEST",

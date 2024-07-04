@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+
+@layer utilities {
+    .text-transparent {
+      color: transparent;
+    }
+  
+    .bg-clip-text {
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+  
+    .bg-gradient-to-r {
+      background-image: linear-gradient(to right, var(--gradient-from), var(--gradient-to));
+    }
+  }

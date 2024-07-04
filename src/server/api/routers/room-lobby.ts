@@ -14,8 +14,7 @@ export const roomLobbyRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log(input.isReadyState, input.roomId, ctx.playerId);
-
+      // console.log(input.isReadyState, input.roomId, ctx.playerId);
       const ownerId = await ctx.db
         .update(roomPlayers)
         .set({ isReady: input.isReadyState })
@@ -47,6 +46,20 @@ export const roomLobbyRouter = createTRPCRouter({
         .orderBy(roomPlayers.id);
 
       return currentRoomPlayers;
+    }),
+
+  removePlayer: publicProcedure
+    .input(
+      z.object({
+        roomId: z.number(),
+        deletedPlayerId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.playerId)
+      await ctx.db
+        .delete(roomPlayers)
+        .where(eq(roomPlayers.playerId, input.deletedPlayerId));
     }),
 
   setPeerId: publicProcedure
@@ -86,7 +99,7 @@ export const roomLobbyRouter = createTRPCRouter({
         );
 
       return peerId[0]?.peerId;
-    }),
+    }),  
 
   getPeerIdList: publicProcedure
     .input(

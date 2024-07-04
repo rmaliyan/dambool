@@ -20,7 +20,7 @@ export const IconElement: React.FC<IconElementProps> = ({
   selectable = selectable ?? false;
 
   const selectableStyle =
-    "hover:z-50 hover:scale-110 hover:shadow-[0px_0px_3px_4px_rgba(10,10,10,0.1)] active:scale-90 active:shadow-[0px_0px_2px_1px_rgba(10,10,10,0.2)]";
+    "hover:z-50 hover:scale-110 hover:shadow-[0px_0px_3px_4px_rgba(10,10,10,0.1)] active:scale-90 active:shadow-[0px_0px_2px_1px_rgba(10,10,10,0.2)] cursor-pointer";
 
   return (
     <div

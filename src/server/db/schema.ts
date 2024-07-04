@@ -64,7 +64,7 @@ export const roomPlayers = createTable(
     peerId: varchar("player_peerId", { length: 64 }),
     playerId: integer("player_id")
       .notNull(),
-    playerName: varchar("player_name", { length: 255 })
+    playerName: varchar("player_name", { length: 25 })
       .notNull(),
     isReady: boolean("is_ready").notNull().default(false),
   }

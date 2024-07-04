@@ -25,6 +25,12 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
     isError,
   } = api.roomLobby.getPlayerList.useQuery({ roomId: roomId });
 
+  console.log(currentRoomPlayers);
+
+  const currentRoomActivePlayers = currentRoomPlayers
+    ? currentRoomPlayers.filter((elem) => elem.isReady)
+    : [];
+
   const { mutate: mutateStartGame, error } = api.game.startGame.useMutation();
 
   const utils = api.useUtils();
@@ -38,6 +44,13 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
     });
 
   const { mutate: mutatePlayerName } = api.roomLobby.setPlayerName.useMutation({
+    async onSuccess() {
+      await utils.roomLobby.getPlayerList.invalidate();
+      triggerEvent("lobby");
+    },
+  });
+
+  const { mutate: mutateRmovePlayer } = api.roomLobby.removePlayer.useMutation({
     async onSuccess() {
       await utils.roomLobby.getPlayerList.invalidate();
       triggerEvent("lobby");
@@ -60,10 +73,6 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
 
   const isOwner = playerId === ownerId;
 
-  const handleTest = () => {
-    console.log("test button pressed");
-  };
-
   const handleStartGame = () => {
     mutateStartGame({ roomId });
   };
@@ -82,6 +91,13 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
       return;
     }
     mutatePlayerName({ roomId: roomId, playerName: newName });
+  };
+
+  const handleRemovePlayer = (deletedPlayerId: number) => {
+    if (playerId !== ownerId) {
+      alert("You don't have the right, O you don't have the right!");
+    }
+    mutateRmovePlayer({ roomId, deletedPlayerId });
   };
 
   return (
@@ -114,8 +130,27 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
         // Games list should be added here
       }
 
-      <span className="font-semibold text-neutral-600">Players List</span>
       <hr className="my-2 h-px w-[70%] border-[1px] bg-neutral-300"></hr>
+
+      <div className="text-center text-sm text-neutral-600">
+        <span>
+          Share this lobby&apos;s <span className="hover:text-violet-500 active:text-gray-800 font-bold cursor-pointer" onClick={handleCopyRoomUrl}>url</span> to invite
+          friends.
+          <br />
+        </span>
+
+        {isOwner && (
+          <span>
+            {" "}
+            You can start the game when <br /> at least 2 players are ready.
+          </span>
+        )}
+      </div>
+
+      <hr className="my-2 h-px w-[70%] border-[1px] bg-neutral-300"></hr>
+
+      <span className="font-semibold text-neutral-600">Players List</span>
+      {/* <hr className="my-2 h-px w-[70%] border-[1px] bg-neutral-300"></hr> */}
 
       <div className="flex flex-col">
         {currentRoomPlayers!.map((player, index) => (
@@ -179,8 +214,21 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
                 iconAltText="edit icon"
                 selectable={true}
                 onClick={() => handleEditName(player.playerName)}
-              />
+              />           
             </div>
+
+            <div
+                className={cn("ml-[-3px]", { 
+                  ["hidden"]: player.playerId === ownerId || player.playerId === playerId || playerId !== ownerId,
+                })}
+              >
+                <IconElement
+                  imageUrl="/assets/icon-delete.svg"
+                  iconAltText="delete icon"
+                  selectable={true}
+                  onClick={() => handleRemovePlayer(player.playerId)}
+                />
+              </div>
           </div>
         ))}
       </div>
@@ -191,6 +239,7 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
             buttonText="Start Game"
             onClick={handleStartGame}
             className="text-2xl"
+            isActive={currentRoomActivePlayers?.length > 0}
           />
         )}
 
@@ -200,11 +249,13 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
           className="text-2xl"
         />
 
+        {/*}
         <TextButton
           buttonText="Test"
           onClick={handleTest}
           className="text-xl"
         />
+        */}
 
         {!isOwner && (
           <TextButton

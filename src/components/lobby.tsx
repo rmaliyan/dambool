@@ -134,7 +134,7 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
 
       <div className="text-center text-sm text-neutral-600">
         <span>
-          Share this lobby's <span className="hover:text-violet-500 active:text-gray-800 font-bold cursor-pointer" onClick={handleCopyRoomUrl}>url</span> to invite
+          Share this lobby&apos;s <span className="hover:text-violet-500 active:text-gray-800 font-bold cursor-pointer" onClick={handleCopyRoomUrl}>url</span> to invite
           friends.
           <br />
         </span>

@@ -29,11 +29,17 @@ export type DeckModel = {
 };
 
 export type BeatenModel = {
-  cards: CardModel[];
-};
+  cards: CardModel[];};
 
-export type State = "attacking" | "defending" | "finished";
-export type CurrentState = { turnCount: number; activePlayerId: number; state: State };
+export type CurrentState = { 
+  turnCount: number; 
+  attacker: number;
+  defender: number; 
+  //Counts players that finished turn without making a move.
+  idlePlayerCount: number;
+ };
+
+
 
 export type GameModel = {
   currentState: CurrentState;

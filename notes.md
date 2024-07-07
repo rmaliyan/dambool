@@ -61,7 +61,7 @@
         └── output:
             └── Game state
 
-# todo
+# Tasks
 
 - [x] Create room functionality and client / server connection 
 - [x] Define Gamestate object
@@ -94,22 +94,27 @@
 - [ ] Add admin funct to delete users
 
 
-
-- [x] In chrome text buttons  disapear on hover
-- [x] Make "Start game" inactive when there are less than 2 players
-- [x] Add admin funct to delete users
+- [X] In chrome text buttons  disapear on hover
+- [X] Make "Start game" inactive when there are less than 2 players
+- [X] Add admin funct to delete users
 - [X] Restrict player names (length? character set?)
 - [X] Add cursor change on all clickable elements.
 - [ ] Add some kind of error for when name length is exceeded.
 - [ ] Player's page updates, when player sets ready, but admin's page doesn't.
 
 
+- [X] add endpoint that returns current running game
+- [X] revisit UI for 3 and more player game. (attacking and collecting multiple cards) /!\
+- [ ] Add tabindex to clickable elements
+- [ ] Add endpoint to collect cards
+- [ ] Implement card collection to frontend 
+
+# Issues:
+- [ ] When player is added admin's interface is not refreshed
 
 
 
-
-
-
+# Long-term tasks:
 - [ ] Turn all icons into font
 - [ ] Check how I declare default prop values in components. change to direct equality where nullish coalescing operator is used (??). See button-text component for example.
 - [ ] Compose a describtion, listing used technology stack:

@@ -33,11 +33,15 @@ export function PeerContextProvider({
 
   const { mutateAsync: mutatePeerId } = api.roomLobby.setPeerId.useMutation();
 
-  const { roomLobby } = api.useUtils();
+  const { roomLobby, game } = api.useUtils();
 
   const handleLobbyEvent = useCallback(async () => {
     await roomLobby.getPlayerList.invalidate({ roomId });
   }, [roomId, roomLobby]);
+
+  const handleGameEvent = useCallback(async () => {
+    await game.getCurrentGame.invalidate({ roomId });
+  }, [roomId, game]);
 
   const connectedHandler = useCallback((connection?: DataConnection) => {
     if (!connection) {
@@ -45,7 +49,13 @@ export function PeerContextProvider({
       return;
     }
     // eslint-disable-next-line  @typescript-eslint/no-misused-promises
-    connection.on("data", (_) => handleLobbyEvent());
+    connection.on("data", (event) => {
+      if (event === "game") {
+        void handleGameEvent();
+        return;
+      }
+      void handleLobbyEvent();
+    });
   }, []);
 
   useEffect(() => {
@@ -84,7 +94,7 @@ export function PeerContextProvider({
       return;
     }
 
-    const openHandler =  (id: string) => {
+    const openHandler = (id: string) => {
       void mutatePeerId({ roomId: roomId, peerId: id });
       setIsOpen(true);
     };

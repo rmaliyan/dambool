@@ -42,7 +42,7 @@ export const roomLobbyRouter = createTRPCRouter({
           isReady: roomPlayers.isReady,
         })
         .from(roomPlayers)
-        .where(eq(roomPlayers.roomId, input.roomId))
+        .where(and(eq(roomPlayers.roomId, input.roomId),eq(roomPlayers.isRemoved, false)))
         .orderBy(roomPlayers.id);
 
       return currentRoomPlayers;
@@ -56,10 +56,34 @@ export const roomLobbyRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (ctx.playerId)
+      const ownerId = (
+        await ctx.db
+          .select({ ownerId: rooms.ownerId })
+          .from(rooms)
+          .where(eq(rooms.id, input.roomId))
+      )[0]?.ownerId;
+
+      if (ctx.playerId !== ownerId) {
+        throw new TRPCError({
+          message: "Action reserved only for room owner. Which you are not.",
+          code: "FORBIDDEN",
+        });
+      }
+      if (input.deletedPlayerId === ownerId) {
+        throw new TRPCError({
+          message: "Call 1-800-273-8255. Get help.",
+          code: "BAD_REQUEST",
+        });
+      }
       await ctx.db
-        .delete(roomPlayers)
-        .where(eq(roomPlayers.playerId, input.deletedPlayerId));
+        .update(roomPlayers)
+        .set({ isRemoved: true })
+        .where(
+          and(
+            eq(roomPlayers.playerId, input.deletedPlayerId),
+            eq(roomPlayers.roomId, input.roomId),
+          ),
+        );
     }),
 
   setPeerId: publicProcedure
@@ -99,7 +123,7 @@ export const roomLobbyRouter = createTRPCRouter({
         );
 
       return peerId[0]?.peerId;
-    }),  
+    }),
 
   getPeerIdList: publicProcedure
     .input(

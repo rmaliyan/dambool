@@ -31,9 +31,16 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
     ? currentRoomPlayers.filter((elem) => elem.isReady)
     : [];
 
-  const { mutate: mutateStartGame, error } = api.game.startGame.useMutation();
-
   const utils = api.useUtils();
+
+  const { triggerEvent } = usePeer()!;
+
+  const { mutate: mutateStartGame, error } = api.game.startGame.useMutation({
+    async onSuccess() {
+      await utils.game.getCurrentGame.invalidate();
+      triggerEvent("game");
+    },
+  });
 
   const { mutateAsync: mutateSetReady, error: setReadyError } =
     api.roomLobby.setReady.useMutation({
@@ -56,8 +63,6 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
       triggerEvent("lobby");
     },
   });
-
-  const { triggerEvent } = usePeer()!;
 
   if (isError) {
     return <div>error</div>;
@@ -134,14 +139,19 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
 
       <div className="text-center text-sm text-neutral-600">
         <span>
-          Share this lobby&apos;s <span className="hover:text-violet-500 active:text-gray-800 font-bold cursor-pointer" onClick={handleCopyRoomUrl}>url</span> to invite
-          friends.
+          Share this lobby&apos;s{" "}
+          <span
+            className="cursor-pointer font-bold hover:text-violet-500 active:text-gray-800"
+            onClick={handleCopyRoomUrl}
+          >
+            url
+          </span>{" "}
+          to invite friends.
           <br />
         </span>
 
         {isOwner && (
           <span>
-            {" "}
             You can start the game when <br /> at least 2 players are ready.
           </span>
         )}
@@ -201,7 +211,8 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
               })}
               title={"PlayerId:" + player.playerId.toString()}
             >
-              player name: {player.playerName}
+              {/* player name: */}
+              {player.playerName}
             </div>
 
             <div
@@ -214,21 +225,23 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
                 iconAltText="edit icon"
                 selectable={true}
                 onClick={() => handleEditName(player.playerName)}
-              />           
+              />
             </div>
 
             <div
-                className={cn("ml-[-3px]", { 
-                  ["hidden"]: player.playerId === ownerId || player.playerId === playerId || playerId !== ownerId,
-                })}
-              >
-                <IconElement
-                  imageUrl="/assets/icon-delete.svg"
-                  iconAltText="delete icon"
-                  selectable={true}
-                  onClick={() => handleRemovePlayer(player.playerId)}
-                />
-              </div>
+              className={cn("ml-[-3px]", {
+                ["hidden"]:
+                  // player.playerId === ownerId ||
+                  player.playerId === playerId || playerId !== ownerId,
+              })}
+            >
+              <IconElement
+                imageUrl="/assets/icon-delete.svg"
+                iconAltText="delete icon"
+                selectable={true}
+                onClick={() => handleRemovePlayer(player.playerId)}
+              />
+            </div>
           </div>
         ))}
       </div>

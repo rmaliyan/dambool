@@ -1,6 +1,13 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { startGame } from "~/game-logic";
+import {
+  canAttack,
+  canDefend,
+  discardToBeaten,
+  endTurn,
+  getPlayerHand,
+  startGame,
+} from "~/game-logic";
 import { games, roomPlayers, rooms } from "~/server/db/schema";
 import { and, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -63,6 +70,23 @@ export const gameRouter = createTRPCRouter({
       return newGame;
     }),
 
+  getCurrentGame: publicProcedure
+    .input(
+      z.object({
+        roomId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return (
+        await ctx.db
+          .select({ currentGame: games.gameJson })
+          .from(games)
+          .where(
+            and(eq(games.roomId, input.roomId), eq(games.isFinished, false)),
+          )
+      )[0]!.currentGame;
+    }),
+
   attackMove: publicProcedure
     .input(
       z.object({
@@ -91,15 +115,14 @@ export const gameRouter = createTRPCRouter({
       const gameObject = gameObjectArray[0]!.gameObject;
       const gameId = gameObjectArray[0]!.gameId;
 
-      if (ctx.playerId !== gameObject.currentState.activePlayerId) {
+      if (ctx.playerId !== gameObject.currentState.attacker) {
         throw new TRPCError({
           message: "Player attempting to play at wrong turn",
           code: "BAD_REQUEST",
         });
       }
 
-      const handIndex = gameObject.playerList.indexOf(ctx.playerId);
-      const hand = gameObject.hands[handIndex]!;
+      const hand = getPlayerHand(gameObject, ctx.playerId);
 
       if (input.cardIndex >= hand.cards.length) {
         throw new TRPCError({
@@ -110,15 +133,7 @@ export const gameRouter = createTRPCRouter({
 
       const attackCard = hand.cards[input.cardIndex]!;
 
-      const canAttack: boolean =
-        gameObject.battleArea.pairs.length === 0 ||
-        gameObject.battleArea.pairs.find(
-          (elem) =>
-            elem.attack.rank === attackCard.rank ||
-            elem.defence?.rank === attackCard.rank,
-        ) !== undefined;
-
-      if (!canAttack) {
+      if (!canAttack(gameObject.battleArea, attackCard)) {
         throw new TRPCError({
           message: "No cards in hand suitable for attack",
           code: "BAD_REQUEST",
@@ -129,11 +144,9 @@ export const gameRouter = createTRPCRouter({
 
       hand.cards.splice(input.cardIndex, 1);
 
-      gameObject.currentState.state = "defending";
       gameObject.currentState.turnCount++;
 
-      gameObject.currentState.activePlayerId =
-        gameObject.playerList[(handIndex + 1) % gameObject.playerList.length]!;
+      gameObject.currentState.idlePlayerCount = 0;
 
       await ctx.db
         .update(games)
@@ -141,9 +154,7 @@ export const gameRouter = createTRPCRouter({
         .where(eq(games.id, gameId));
     }),
 
-
-
-    defenceMove: publicProcedure
+  defenceMove: publicProcedure
     .input(
       z.object({
         roomId: z.number(),
@@ -159,29 +170,29 @@ export const gameRouter = createTRPCRouter({
         .where(
           and(eq(games.roomId, input.roomId), eq(games.isFinished, false)),
         );
-  
+
       if (gameObjectArray.length === 0) {
         throw new TRPCError({
           message: "Missing game object. No active games in this room.",
           code: "BAD_REQUEST",
         });
       }
-  
+
       const gameObject = gameObjectArray[0]!.gameObject;
+
       const gameId = gameObjectArray[0]!.gameId;
-  
+
       // Check if it's the defender's turn
-      if (ctx.playerId !== gameObject.currentState.activePlayerId) {
+      if (ctx.playerId !== gameObject.currentState.defender) {
         throw new TRPCError({
           message: "Player attempting to play at wrong turn",
           code: "BAD_REQUEST",
         });
       }
-  
+
       // Get defender's hand
-      const handIndex = gameObject.playerList.indexOf(ctx.playerId);
-      const hand = gameObject.hands[handIndex]!;
-  
+      const hand = getPlayerHand(gameObject, ctx.playerId);
+
       // Check if the selected card exists in hand
       if (input.cardIndex >= hand.cards.length) {
         throw new TRPCError({
@@ -189,55 +200,87 @@ export const gameRouter = createTRPCRouter({
           code: "BAD_REQUEST",
         });
       }
-  
+
       const defenceCard = hand.cards[input.cardIndex]!;
       const attackingPair = gameObject.battleArea.pairs[input.pairIndex];
-  
+
       if (!attackingPair || attackingPair.defence) {
         throw new TRPCError({
           message: "Invalid pair to defend against",
           code: "BAD_REQUEST",
         });
       }
-      
+
       // Check if the defence is valid (higher rank of same suit, or trump)
-      const isTrump = defenceCard.suit === gameObject.deck.trumpCard.suit;
-      const isValidDefence = 
-        (defenceCard.suit === attackingPair.attack.suit && defenceCard.rank > attackingPair.attack.rank) ||
-        (isTrump && attackingPair.attack.suit !== gameObject.deck.trumpCard.suit);
-  
+      const isValidDefence = canDefend(
+        attackingPair.attack,
+        defenceCard,
+        gameObject.deck.trumpCard.suit,
+      );
+
       if (!isValidDefence) {
         throw new TRPCError({
           message: "Invalid defence card",
           code: "BAD_REQUEST",
         });
       }
-  
+
       // Add the defence card to the pair
       attackingPair.defence = defenceCard;
       hand.cards.splice(input.cardIndex, 1);
-  
-      // Check if all attacks are defended
-      // Add waiting for other player to end turn?
-      const allDefended = gameObject.battleArea.pairs.every((pair) => pair.defence);
-  
-      if (allDefended) {
-        // Move to next player's turn
-        gameObject.currentState.state = "attacking";
-        gameObject.currentState.turnCount++;
-        gameObject.currentState.activePlayerId =
-          gameObject.playerList[(handIndex + 1) % gameObject.playerList.length]!;
-        
-        // Clear the battle area
-        gameObject.battleArea.pairs = [];
-      } else {
 
-        // Stay in defending state, but allow attacker to add more cards if possible
-        gameObject.currentState.activePlayerId =
-          gameObject.playerList[(handIndex - 1 + gameObject.playerList.length) % gameObject.playerList.length]!;
+      if (hand.cards.length === 0) {
+        discardToBeaten(gameObject);
       }
-  
-      // Save updated game state
+
+      await ctx.db
+        .update(games)
+        .set({ gameJson: gameObject })
+        .where(eq(games.id, gameId));
+    }),
+
+  endTurn: publicProcedure
+    .input(
+      z.object({
+        roomId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const gameObjectArray = await ctx.db
+        .select({ gameObject: games.gameJson, gameId: games.id })
+        .from(games)
+        .where(
+          and(eq(games.roomId, input.roomId), eq(games.isFinished, false)),
+        );
+
+      if (gameObjectArray.length === 0) {
+        throw new TRPCError({
+          message: "Missing game object. No active games in this room.",
+          code: "BAD_REQUEST",
+        });
+      }
+
+      const gameObject = gameObjectArray[0]!.gameObject;
+
+      const gameId = gameObjectArray[0]!.gameId;
+
+      if (ctx.playerId !== gameObject.currentState.attacker) {
+        throw new TRPCError({
+          message: "Player attempting to play at wrong turn",
+          code: "BAD_REQUEST",
+        });
+      }
+
+      if (gameObject.battleArea.pairs.filter((pair) => !pair.defence).length) {
+        throw new TRPCError({
+          message:
+            "Turn can not be ended while there are unbeaten cards at the battle area.",
+          code: "BAD_REQUEST",
+        });
+      }
+
+      endTurn(gameObject);
+
       await ctx.db
         .update(games)
         .set({ gameJson: gameObject })

@@ -1,13 +1,12 @@
 import {
   CardModel,
   HandModel,
-  PairModel,
   BattleAreaModel,
   DeckModel,
   Suits,
   Ranks,
-  BeatenModel,
   GameModel,
+  Suit,
 } from "~/game-logic";
 
 function createDeck(): CardModel[] {
@@ -70,8 +69,9 @@ export function startGame(playerList: number[]): GameModel {
   const currentGame: GameModel = {
     currentState: {
       turnCount: 0,
-      activePlayerId: playerList[0]!,
-      state: "attacking",
+      attacker: playerList[0]!,
+      defender: playerList[1]!,
+      idlePlayerCount: 0,
     },
     playerList: playerList,
     hands: playerList.map(() => dealHand(deck, { cards: [] })),
@@ -83,3 +83,111 @@ export function startGame(playerList: number[]): GameModel {
   return currentGame;
 }
 
+export function canDefend(
+  attackCard: CardModel,
+  defenceCard: CardModel,
+  trumpSuit: Suit,
+) {
+  if (defenceCard.suit === attackCard.suit) {
+    return defenceCard.rank > attackCard.rank;
+  }
+  return defenceCard.suit === trumpSuit;
+}
+
+export function canAttack(battleArea: BattleAreaModel, attackCard: CardModel) {
+  return (
+    battleArea.pairs.length === 0 ||
+    battleArea.pairs.find(
+      (elem) =>
+        elem.attack.rank === attackCard.rank ||
+        elem.defence?.rank === attackCard.rank,
+    ) !== undefined
+  );
+}
+
+// export function attackMove (game:GameModel, attackCardIndex:CardModel) {
+//   game.battleArea.pairs.push({ attack: attackCard });
+
+//   hand.cards.splice(input.cardIndex, 1);
+
+//   gameObject.currentState.turnCount++;
+
+// }
+
+export function discardToBeaten(game: GameModel) {
+  for (const { attack, defence } of game.battleArea.pairs) {
+    game.beaten.cards.push(attack);
+    game.beaten.cards.push(defence!);
+  }
+
+  game.battleArea.pairs.length = 0;
+
+  dealAll(game);
+
+  game.currentState.attacker = game.currentState.defender;
+  game.currentState.defender = nextPlayer(
+    game.playerList,
+    game.currentState.defender,
+  );
+
+  game.currentState.idlePlayerCount = 0;
+}
+
+export function dealAll(game: GameModel) {
+  for (const hand of game.hands) {
+    dealHand(game.deck, hand);
+  }
+}
+
+export function nextPlayer(playerList: number[], playerId: number) {
+  const playerIndex = playerList.indexOf(playerId);
+  return playerList[(playerIndex + 1) % playerList.length]!;
+}
+
+export function endTurn(game: GameModel) {
+  game.currentState.idlePlayerCount++;
+
+  if (game.currentState.idlePlayerCount === game.playerList.length - 1) {
+    discardToBeaten(game);
+    return;
+  }
+
+  let nextAttacker = nextPlayer(game.playerList, game.currentState.attacker);
+
+  if (nextAttacker === game.currentState.defender) {
+    nextAttacker = nextPlayer(game.playerList, nextAttacker);
+  }
+
+  game.currentState.attacker = nextAttacker;
+
+  if (!attackerCanMakeATurn(game, game.currentState.attacker)) {
+    endTurn(game);
+  }
+}
+
+export function getPlayerHand(game: GameModel, playerId: number) {
+  return game.hands[game.playerList.indexOf(playerId)]!;
+}
+
+export function attackerCanMakeATurn(game: GameModel, playerId: number) {
+  const defenderHand = getPlayerHand(game, game.currentState.defender);
+
+  const undefendedPairsCount = game.battleArea.pairs.filter(
+    (pair) => !pair.defence,
+  ).length;
+
+  if (defenderHand.cards.length - undefendedPairsCount === 0) {
+    return false;
+  }
+
+  const attackerHand = getPlayerHand(game, playerId);
+
+  for (const card of attackerHand.cards) {
+    if (canAttack(game.battleArea, card)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// export function defenderCanMakeATurn(game: GameModel, playerId: number) {}

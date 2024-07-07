@@ -3,7 +3,7 @@ import { db } from "~/server/db";
 import { eq, and, count } from "drizzle-orm";
 import { rooms, games, roomPlayers } from "~/server/db/schema";
 import { GameModel } from "~/game-logic";
-import { createPlayerId, getPlayerId } from "~/utils/api";
+import { api, createPlayerId, getPlayerId } from "~/utils/api";
 import { GameComponent } from "~/components/game-area";
 import { PeerContextProvider } from "~/components/peer-context-provider";
 import { LobbyComponent } from "~/components/lobby";
@@ -67,23 +67,24 @@ export const getServerSideProps = (async (context) => {
   }
 
   return {
-    props: { roomId, playerId, currentGame, ownerId },
+    props: { roomId, playerId, ownerId },
   };
 }) satisfies GetServerSideProps<NonNullable<unknown>>;
 
 export default function CreateRoom({
   roomId,
   playerId,
-  currentGame,
   ownerId,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+
+  const {data:game} = api.game.getCurrentGame.useQuery({roomId});
 
   return (
     <PeerContextProvider roomId={roomId}>
       <main className="flex w-full items-center justify-center">
         {/* {error && <div className="text-red-600">{error.message}</div>} */}
 
-        {!currentGame && (
+        {!game && (
           <LobbyComponent
             roomId={roomId}
             ownerId={ownerId}
@@ -91,9 +92,8 @@ export default function CreateRoom({
           />
         )}
 
-        {currentGame && (
+        {game && (
           <GameComponent
-            game={currentGame}
             roomId={roomId}
             playerId={playerId}
           />

@@ -1,43 +1,86 @@
-import Link from "next/link";
 import {
   HandComponent,
   BattleAreaComponent,
   DeckAreaComponent,
   BeatenAreaComponent,
+  TextButton,
 } from "~/components";
-import {
-  CardModel,
-  HandModel,
-  PairModel,
-  BattleAreaModel,
-  DeckModel,
-  Suits,
-  Ranks,
-  BeatenModel,
-  GameModel,
-} from "~/game-logic";
+import { canDefend } from "~/game-logic";
+
+import { usePeer } from "~/hooks/usePeer";
 import { api } from "~/utils/api";
 
 export type GameComponentProps = {
-  game: GameModel;
   roomId: number;
   playerId: number;
 };
 
 export const GameComponent: React.FC<GameComponentProps> = ({
-  game,
   roomId,
   playerId,
 }) => {
-  const { mutate: mutateAttack, error } = api.game.attackMove.useMutation();
+  const utils = api.useUtils();
+
+  const { triggerEvent } = usePeer()!;
+
+  const { data: game } = api.game.getCurrentGame.useQuery({ roomId });
+
+  const { mutate: mutateEndTurn } = api.game.endTurn.useMutation({
+    async onSuccess() {
+      await utils.game.getCurrentGame.invalidate();
+      triggerEvent("game");
+    },
+  });
+
+  const { mutate: mutateAttack, error: attackErrorr } =
+    api.game.attackMove.useMutation({
+      async onSuccess() {
+        await utils.game.getCurrentGame.invalidate();
+        triggerEvent("game");
+      },
+    });
+
+  const { mutate: mutateDefence, error: defendError } =
+    api.game.defenceMove.useMutation({
+      async onSuccess() {
+        await utils.game.getCurrentGame.invalidate();
+        triggerEvent("game");
+      },
+    });
+
+  if (!game) {
+    return <>loading</>;
+  }
+
+  const handleEndTurn = () => {
+    mutateEndTurn({ roomId: roomId });
+  };
 
   const handleCardClick = (cardIndex: number) => {
-    const activePlayer = game.currentState.activePlayerId;
-    if (activePlayer !== playerId) {
-      alert("Not your turn");
+    if (playerId === game.currentState.attacker) {
+      mutateAttack({ cardIndex: cardIndex, roomId: roomId });
       return;
     }
-    mutateAttack({ cardIndex: cardIndex, roomId: roomId });
+    if (playerId === game.currentState.defender) {
+      const defendablePairs = game.battleArea.pairs.filter(
+        (pair) =>
+          !pair.defence &&
+          canDefend(
+            pair.attack,
+            game.hands[game.playerList.indexOf(playerId)]!.cards[cardIndex]!,
+            game.deck.trumpCard.suit,
+          ),
+      );
+
+      if (defendablePairs.length === 1) {
+        mutateDefence({
+          cardIndex: cardIndex,
+          roomId: roomId,
+          pairIndex: game.battleArea.pairs.indexOf(defendablePairs[0]!),
+        });
+        return;
+      }
+    }
   };
 
   const playerCount = game.playerList.length;
@@ -51,6 +94,8 @@ export const GameComponent: React.FC<GameComponentProps> = ({
   const player2Hand = game.hands[(playerHandIndex + 2) % game.hands.length]!;
 
   const player3Hand = game.hands[(playerHandIndex + 3) % game.hands.length]!;
+
+  const canEndTurn = true;
 
   return (
     <div className="flex flex-row items-center justify-center gap-3">
@@ -88,6 +133,15 @@ export const GameComponent: React.FC<GameComponentProps> = ({
           hand={player0Hand}
           isPlayer={true}
         />
+
+        <div className="mt-10 bg-white px-5">
+          <TextButton
+            buttonText="End Turn"
+            onClick={handleEndTurn}
+            className="text-2xl"
+            isActive={canEndTurn}
+          />
+        </div>
       </div>
 
       {game.hands.length > 2 && (

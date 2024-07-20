@@ -19,6 +19,7 @@
     "@trpc/next": "next",
     "@trpc/react-query": "next",
     "@trpc/server": "next",
+    "@vercel/speed-insights": "^1.0.12",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.31.0",
     "next": "^14.2.1",

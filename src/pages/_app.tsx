@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import Head from "next/head";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
 
       <main className={`vignette flex w-screen h-screen min-h-screen items-center bg-[url('/assets/background_table_tiled_small.webp')] bg-repeat justify-center font-sans ${inter.variable}`}>
             <Component {...pageProps} />
+            <SpeedInsights />
       </main>
 
     
@@ -36,6 +38,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       </main> */}
 
     </SessionProvider>
+    
   );
 };
 

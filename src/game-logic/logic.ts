@@ -10,7 +10,7 @@ import {
 } from "~/game-logic";
 
 export class GameLogicError {
-  message: string = "";
+  message = "";
 
   constructor(message: string) {
     this.message = message;

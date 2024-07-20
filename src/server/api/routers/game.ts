@@ -138,7 +138,7 @@ export const gameRouter = createTRPCRouter({
         } else {
           addCardMove(gameObject, input.cardIndex);
         }
-      } catch (error: any) {
+      } catch (error) {
         if (error instanceof GameLogicError) {
           throw new TRPCError({
             message: error.message,

@@ -121,7 +121,7 @@ export const GameComponent: React.FC<GameComponentProps> = ({
 
   const playerHandIndex = game.playerList.indexOf(playerId);
 
-  let allPairsComplete = game.battleArea.pairs.every((pair) => pair.defence);
+  const allPairsComplete = game.battleArea.pairs.every((pair) => pair.defence);
 
   // for (const pair of game.battleArea.pairs) {
   //   if (!pair.defence) {collectPermeted = false}

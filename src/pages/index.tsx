@@ -129,36 +129,75 @@ const testDeck2: DeckModel = {
 const testDeck3 = createBeaten();
 
 export default function Home() {
+  const images = {
+    background: "/assets/background_table_tiled_small.webp",
+    ornament: "/assets/circular-gothic-ornament.webp",
+    logo: "/assets/dambool-logo-final-300.webp",
+    mrLogo: "/assets/MR.svg",
+  };
+
   return (
-    <>
-      <div className="relative flex h-full w-full items-center justify-center bg-gradient-to-t from-black to-zinc-800">
-        <div className="flex h-full w-full scale-90 items-center justify-center">
-          <div className="group relative mt-[-50px] flex items-center justify-center">
-            <div className="absolute h-[500px] w-[500px] rounded-full border-4 border-white border-opacity-5 shadow-xl backdrop-blur-[2px] transition-all group-hover:z-10 group-hover:scale-105 group-hover:backdrop-blur-[4px]"></div>
-            <div className="mb-[-50px] h-[600px] w-[600px] rounded-full bg-[url('/assets/background_table_tiled_small.webp')] bg-repeat transition-all"></div>
-            <img
-              className="pointer-events: none absolute z-40 mt-[-140px] w-[950px] scale-150"
-              src="/assets/dambool logo final-300.webp"
-              alt="dambool logo"
-            ></img>
-
-            <TextButton buttonText="Start" hrefLink="/api/create-room" className="absolute z-50 mb-[-320px] text-6xl w-44"/>
-
-          </div>
-          <div className="absolute mb-[-800px] flex items-center">
-            <span className="text-base font-semibold text-zinc-700 opacity-100">
-              A non-gambling multiplayer card game. 2024
-            </span>
-            <Link href="https://github.com/rmaliyan" target="_blank">
-              <img
-                className="ml-2 h-[22px] opacity-100"
-                src="/assets/MR.svg"
-                alt="MR logo"
-              ></img>
-            </Link>
-          </div>
+    <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-t from-black to-zinc-800">
+      <main className="relative mb-[100px] flex flex-col items-center justify-center">
+        <div className="absolute z-0 h-[500px] w-[500px] overflow-hidden rounded-full">
+          <div
+            className="absolute inset-0 bg-repeat"
+            style={{ backgroundImage: `url(${images.background})` }}
+          ></div>
+          <div
+            className="absolute inset-0 animate-slow-spin bg-cover opacity-30 mix-blend-soft-light"
+            style={{ backgroundImage: `url(${images.ornament})` }}
+          ></div>
         </div>
-      </div>
-    </>
+
+        <div className="group absolute flex flex-col items-center justify-center">
+          <div className="absolute top-[-235px] h-[430px] w-[430px] rounded-full border-4 border-white border-opacity-5 shadow-xl backdrop-blur-[2px] transition-all group-hover:z-10 group-hover:scale-105 group-hover:backdrop-blur-[4px]"></div>
+
+          <header
+            className="pointer-events-none absolute top-[-270px] z-20 h-[150px] w-[350px] bg-cover lg:h-[400px] lg:w-[750px]"
+            style={{ backgroundImage: `url(${images.logo})` }}
+          ></header>
+
+          <TextButton
+            hrefLink="/api/create-room"
+            className="absolute top-[85px] z-20 text-6xl"
+            textGradient="bg-gradient-to-r from-[#993AE4] to-[#D434EE]"
+          >
+            <span>Start</span>
+          </TextButton>
+
+          <footer className="absolute top-[300px] flex min-w-[800px] flex-col items-center justify-center text-base font-normal text-zinc-700">
+            <div className="flex items-center justify-center">
+              <span>A non-gambling multiplayer card game. Made by</span>
+              <Link
+                href="https://github.com/rmaliyan"
+                target="_blank"
+                title="Ruben Maliyan"
+              >
+                <img
+                  className="ml-2 h-[22px]"
+                  src={images.mrLogo}
+                  alt="MR logo"
+                />
+              </Link>
+              <span className="ml-2">in 2024</span>
+            </div>
+            <span>
+              Special thanks to
+              <Link
+                href="https://github.com/Soarc"
+                target="_blank"
+                title="Gor Rustamyan"
+              >
+                <span className="mx-2 text-sm font-black">
+                  &#62;&#60;&#40;&#40;&#40;&#40;&#40;&#176;&#62;
+                </span>
+              </Link>
+              for his guidance, support and patience.
+            </span>
+          </footer>
+        </div>
+      </main>
+    </div>
   );
 }

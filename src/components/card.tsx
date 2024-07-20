@@ -25,6 +25,7 @@ type CardComponentProps = {
   dropShadow?: boolean;
   transparent?: boolean;
   smaller?: boolean;
+  selected?:boolean;
   onClick?: () => void;
 };
 
@@ -36,6 +37,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({
   dropShadow,
   transparent,
   smaller,
+  selected = false,
   onClick,
 }) => {
   // selectable = selectable === undefined ? true : selectable
@@ -45,6 +47,8 @@ export const CardComponent: React.FC<CardComponentProps> = ({
   selectable = showFace && selectable;
   transparent = transparent ?? false;
   smaller = smaller ?? false;
+
+  const selectedStyle = "-translate-y-5"
 
   const suitColorStyle = {
     ["hidden"]: !showFace,
@@ -64,11 +68,12 @@ export const CardComponent: React.FC<CardComponentProps> = ({
         {
           ["opacity-25"]: transparent,
           ["shadow-[0px_0px_2px_2px_rgba(10,10,10,0.2)]"]: dropShadow,
-          ["bg-[url('/assets/card-back-red-border.jpg')] bg-cover bg-center"]:
+          ["bg-[url('/assets/card-back-red-border.webp')] bg-cover bg-center"]:
             !showFace,
           ["bg-white"]: showFace,
           ["scale-75"]: smaller,
           [selectableStyle]: selectable,
+          [selectedStyle]: selected,
         },
       )}
     >

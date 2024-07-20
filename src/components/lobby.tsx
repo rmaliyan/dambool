@@ -25,8 +25,6 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
     isError,
   } = api.roomLobby.getPlayerList.useQuery({ roomId: roomId });
 
-  console.log(currentRoomPlayers);
-
   const currentRoomActivePlayers = currentRoomPlayers
     ? currentRoomPlayers.filter((elem) => elem.isReady)
     : [];
@@ -117,7 +115,7 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
       <Link href="/" target="_blank">
         <img
           className="pointer-events: none w-[350px]"
-          src="/assets/dambool logo final-300.png"
+          src="/assets/dambool-logo-final-300.webp"
           alt="dambool logo"
         ></img>
       </Link>
@@ -249,33 +247,22 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
       <div className="mb-4 mt-8 flex gap-10 pb-4 transition-all">
         {isOwner && (
           <TextButton
-            buttonText="Start Game"
             onClick={handleStartGame}
             className="text-2xl"
             isActive={currentRoomActivePlayers?.length > 0}
-          />
+          ><span>Start Game</span></TextButton>
         )}
 
         <TextButton
-          buttonText="Copy Url"
           onClick={handleCopyRoomUrl}
           className="text-2xl"
-        />
-
-        {/*}
-        <TextButton
-          buttonText="Test"
-          onClick={handleTest}
-          className="text-xl"
-        />
-        */}
+        ><span>Copy Url</span></TextButton>
 
         {!isOwner && (
           <TextButton
-            buttonText={!isReady ? "Ready" : "Not Ready"}
             onClick={handleSetReady}
             className="text-2xl"
-          />
+          ><span>{!isReady ? "Ready" : "Not Ready"}</span></TextButton>
         )}
       </div>
     </div>

@@ -35,11 +35,10 @@ export type CurrentState = {
   turnCount: number; 
   attacker: number;
   defender: number; 
+  collecting: boolean;  
   //Counts players that finished turn without making a move.
   idlePlayerCount: number;
  };
-
-
 
 export type GameModel = {
   currentState: CurrentState;

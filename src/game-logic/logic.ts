@@ -9,6 +9,14 @@ import {
   Suit,
 } from "~/game-logic";
 
+export class GameLogicError {
+  message = "";
+
+  constructor(message: string) {
+    this.message = message;
+  }
+}
+
 function createDeck(): CardModel[] {
   const cards = [];
 
@@ -19,8 +27,6 @@ function createDeck(): CardModel[] {
   }
   return cards;
 }
-
-////////////////////////////////////////////////////////
 
 const shuffleDeck = (cards: CardModel[]): DeckModel => {
   for (let index: number = cards.length - 1; index > 0; index--) {
@@ -36,19 +42,6 @@ const shuffleDeck = (cards: CardModel[]): DeckModel => {
   }
   return { cards: cards, trumpCard: cards[0]! };
 };
-
-////////////////////////////////////////////////////////
-
-// function shuffleDeck(cards: CardModel[]): DeckModel {
-//   for (let i = 0; i < cards.length; i++) {
-//     const tmp = cards[i]!;
-//     const randIndex = Math.floor(Math.random() * cards.length);
-//     cards[i] = cards[randIndex]!;
-//     cards[randIndex] = tmp;
-//   }
-
-//   return { cards: cards, trumpCard: cards[0]! };
-// }
 
 function dealHand(deck: DeckModel, hand: HandModel): HandModel {
   if (hand.cards.length >= 6) {
@@ -71,6 +64,7 @@ export function startGame(playerList: number[]): GameModel {
       turnCount: 0,
       attacker: playerList[0]!,
       defender: playerList[1]!,
+      collecting: false,
       idlePlayerCount: 0,
     },
     playerList: playerList,
@@ -105,32 +99,35 @@ export function canAttack(battleArea: BattleAreaModel, attackCard: CardModel) {
   );
 }
 
-// export function attackMove (game:GameModel, attackCardIndex:CardModel) {
-//   game.battleArea.pairs.push({ attack: attackCard });
-
-//   hand.cards.splice(input.cardIndex, 1);
-
-//   gameObject.currentState.turnCount++;
-
-// }
-
 export function discardToBeaten(game: GameModel) {
   for (const { attack, defence } of game.battleArea.pairs) {
     game.beaten.cards.push(attack);
     game.beaten.cards.push(defence!);
   }
+  startNextRound(game);
+}
 
+export function startNextRound(game: GameModel) {
   game.battleArea.pairs.length = 0;
 
   dealAll(game);
 
-  game.currentState.attacker = game.currentState.defender;
-  game.currentState.defender = nextPlayer(
-    game.playerList,
-    game.currentState.defender,
-  );
+  let newAttacker = game.currentState.defender;
+
+  if (game.currentState.collecting) {
+    newAttacker = nextPlayer(game.playerList, game.currentState.defender);
+  }
+
+  const newDefender = nextPlayer(game.playerList, newAttacker);
+
+  game.currentState.attacker = newAttacker;
+  game.currentState.defender = newDefender;
 
   game.currentState.idlePlayerCount = 0;
+
+  game.currentState.collecting = false;
+
+  // Add a check for the game being finished
 }
 
 export function dealAll(game: GameModel) {
@@ -144,7 +141,13 @@ export function nextPlayer(playerList: number[], playerId: number) {
   return playerList[(playerIndex + 1) % playerList.length]!;
 }
 
-export function endTurn(game: GameModel) {
+export function endAttackTurn(game: GameModel) {
+  if (game.battleArea.pairs.filter((pair) => !pair.defence).length) {
+    throw new GameLogicError(
+      "Turn can not be ended while there are unbeaten cards at the battle area.",
+    );
+  }
+
   game.currentState.idlePlayerCount++;
 
   if (game.currentState.idlePlayerCount === game.playerList.length - 1) {
@@ -161,8 +164,38 @@ export function endTurn(game: GameModel) {
   game.currentState.attacker = nextAttacker;
 
   if (!attackerCanMakeATurn(game, game.currentState.attacker)) {
-    endTurn(game);
+    endAttackTurn(game);
   }
+}
+
+export function endDefenceTurn(game: GameModel) {
+  if (!canCollectMore(game)) { 
+    collectCards(game);
+    return;
+  }
+
+  game.currentState.idlePlayerCount++;
+
+  if (game.currentState.idlePlayerCount === game.playerList.length - 1) {
+    collectCards(game);
+    return;
+  }
+
+  let nextAttacker = nextPlayer(game.playerList, game.currentState.attacker);
+
+  if (nextAttacker === game.currentState.defender) {
+    nextAttacker = nextPlayer(game.playerList, nextAttacker);
+  }
+
+  game.currentState.attacker = nextAttacker; 
+}
+
+export function endTurn(game:GameModel) {
+  if(game.currentState.collecting) {
+    endDefenceTurn(game);
+    return;
+  }
+  endAttackTurn(game);
 }
 
 export function getPlayerHand(game: GameModel, playerId: number) {
@@ -188,6 +221,65 @@ export function attackerCanMakeATurn(game: GameModel, playerId: number) {
     }
   }
   return false;
+}
+
+export function attackMove(game: GameModel, cardIndex: number) {
+  const hand = getPlayerHand(game, game.currentState.attacker);
+
+  if (cardIndex >= hand.cards.length) {
+    throw new GameLogicError(
+      "Attacking card index exceeds number of cards in hand",
+    );
+  }
+
+  const attackCard = hand.cards[cardIndex]!;
+
+  if (!canAttack(game.battleArea, attackCard)) {
+    throw new GameLogicError("No cards in hand suitable for attack");
+  }
+
+  game.battleArea.pairs.push({ attack: attackCard });
+
+  hand.cards.splice(cardIndex, 1);
+
+  game.currentState.turnCount++;
+
+  game.currentState.idlePlayerCount = 0;
+}
+
+export function addCardMove(game: GameModel, cardIndex: number) {
+  attackMove(game, cardIndex);
+  if (!canCollectMore(game)) {
+    collectCards(game);
+  }
+}
+
+export function initiateCollectMove(game: GameModel) {
+  game.currentState.collecting = true;
+  if (!canCollectMore(game)) {
+    collectCards(game);
+  }
+}
+
+export function collectCards(game: GameModel) {
+  // Get defender's hand
+  const hand = getPlayerHand(game, game.currentState.defender);
+
+  // Push collected cards to defenders hand, empty battle area
+  for (const pair of game.battleArea.pairs) {
+    hand.cards.push(pair.attack);
+    if (pair.defence) {
+      hand.cards.push(pair.defence);
+    }
+  }
+  startNextRound(game);
+}
+
+export function canCollectMore(game: GameModel) {
+  return (
+    getPlayerHand(game, game.currentState.defender).cards.length >
+    game.battleArea.pairs.filter((pair) => !pair.defence).length
+  );
 }
 
 // export function defenderCanMakeATurn(game: GameModel, playerId: number) {}

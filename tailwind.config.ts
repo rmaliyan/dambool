@@ -5,8 +5,18 @@ export default {
   content: ["./src/**/*.tsx"],
   theme: {
     extend: {
+
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
+      },
+      keyframes: {
+        'slow-spin': {
+          'from': { transform: 'rotate(0deg)' },
+          'to': { transform: 'rotate(-360deg)' },
+        }
+      },
+      animation: {
+        'slow-spin': 'slow-spin 120s linear infinite',
       },
     },    
   },

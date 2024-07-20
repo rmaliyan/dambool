@@ -1,11 +1,16 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import {
+  addCardMove,
+  attackMove,
   canAttack,
   canDefend,
   discardToBeaten,
+  endAttackTurn,
   endTurn,
+  GameLogicError,
   getPlayerHand,
+  initiateCollectMove,
   startGame,
 } from "~/game-logic";
 import { games, roomPlayers, rooms } from "~/server/db/schema";
@@ -77,14 +82,18 @@ export const gameRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return (
-        await ctx.db
+
+      const gamesArray = await ctx.db
           .select({ currentGame: games.gameJson })
           .from(games)
           .where(
             and(eq(games.roomId, input.roomId), eq(games.isFinished, false)),
-          )
-      )[0]!.currentGame;
+          );
+
+      if (gamesArray.length === 0) {
+        return null;
+      } 
+      return gamesArray[0]!.currentGame;
     }),
 
   attackMove: publicProcedure
@@ -122,31 +131,22 @@ export const gameRouter = createTRPCRouter({
         });
       }
 
-      const hand = getPlayerHand(gameObject, ctx.playerId);
-
-      if (input.cardIndex >= hand.cards.length) {
-        throw new TRPCError({
-          message: "Attacking card index exceeds number of cards in hand",
-          code: "BAD_REQUEST",
-        });
+      try {
+        // TODO: Move this logic to separate function in logic.
+        if (!gameObject.currentState.collecting) {
+          attackMove(gameObject, input.cardIndex);
+        } else {
+          addCardMove(gameObject, input.cardIndex);
+        }
+      } catch (error: any) {
+        if (error instanceof GameLogicError) {
+          throw new TRPCError({
+            message: error.message,
+            code: "BAD_REQUEST",
+          });
+        }
+        throw error;
       }
-
-      const attackCard = hand.cards[input.cardIndex]!;
-
-      if (!canAttack(gameObject.battleArea, attackCard)) {
-        throw new TRPCError({
-          message: "No cards in hand suitable for attack",
-          code: "BAD_REQUEST",
-        });
-      }
-
-      gameObject.battleArea.pairs.push({ attack: attackCard });
-
-      hand.cards.splice(input.cardIndex, 1);
-
-      gameObject.currentState.turnCount++;
-
-      gameObject.currentState.idlePlayerCount = 0;
 
       await ctx.db
         .update(games)
@@ -271,15 +271,58 @@ export const gameRouter = createTRPCRouter({
         });
       }
 
-      if (gameObject.battleArea.pairs.filter((pair) => !pair.defence).length) {
+      try {
+        endTurn(gameObject);
+      } catch (error) {
+        if (error instanceof GameLogicError) {
+          throw new TRPCError({
+            message: error.message,
+            code: "BAD_REQUEST",
+          });
+        }
+        throw error;
+      }
+
+      await ctx.db
+        .update(games)
+        .set({ gameJson: gameObject })
+        .where(eq(games.id, gameId));
+    }),
+
+  collectCards: publicProcedure
+    .input(
+      z.object({
+        roomId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Get an array containing an object with gameObject and gameId
+      const gameObjectArray = await ctx.db
+        .select({ gameObject: games.gameJson, gameId: games.id })
+        .from(games)
+        .where(
+          and(eq(games.roomId, input.roomId), eq(games.isFinished, false)),
+        );
+
+      // Check if returned array contains the expected data
+      if (gameObjectArray.length === 0) {
         throw new TRPCError({
-          message:
-            "Turn can not be ended while there are unbeaten cards at the battle area.",
+          message: "Missing game object. No active games in this room.",
           code: "BAD_REQUEST",
         });
       }
 
-      endTurn(gameObject);
+      // Get gameObject and gameID as separate values from the returned array's first element
+      const { gameObject, gameId } = gameObjectArray[0]!;
+
+      if (ctx.playerId !== gameObject.currentState.defender) {
+        throw new TRPCError({
+          message: "Not your turn",
+          code: "BAD_REQUEST",
+        });
+      }
+
+      initiateCollectMove(gameObject);
 
       await ctx.db
         .update(games)

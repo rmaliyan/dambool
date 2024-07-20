@@ -1,19 +1,21 @@
 import Link from "next/link";
-import React from "react";
+import React, { ReactNode } from "react";
 import { cn } from "~/utils/css";
 
 type TextButtonProps = {
-  buttonText: string;
+  children: ReactNode;
   className?: string;
+  textGradient?:string;
   hrefLink?: string;
   isActive?: boolean;
   onClick?: () => void;
 };
 
 export const TextButton: React.FC<TextButtonProps> = ({
-  buttonText,
+  children,
   className,
   hrefLink,
+  textGradient = "bg-gradient-to-r from-[#c74ee6] to-[#783fa7]",
   isActive = true,
   onClick,
 }) => {
@@ -23,7 +25,7 @@ export const TextButton: React.FC<TextButtonProps> = ({
   const textButtonStyle =
     "group relative select-none text-center font-mono font-extrabold uppercase italic tracking-tighter transition-all active:scale-100 group-hover:scale-110";
   const gradientTextStyle =
-    "text-transparent bg-clip-text bg-gradient-to-r from-[#c74ee6] to-[#783fa7]";
+    "text-transparent bg-clip-text";
   const textShadowStyle = "group-hover:drop-shadow-[0_0_3px_rgba(0,0,0,0.1)]";
   const spanStyle =
     "absolute -bottom-1 h-1 w-0 bg-[#CA33EF] transition-all group-hover:w-3/6 group-hover:opacity-80 group-hover:shadow-[0_0_3px_rgba(202,51,239,0.5)]";
@@ -45,8 +47,8 @@ export const TextButton: React.FC<TextButtonProps> = ({
       href={hrefLink!}
       onClick={onClick}
     >
-      <span className={cn(gradientTextStyle, textShadowStyle)}>
-        {buttonText}
+      <span className={cn("px-1", textGradient, gradientTextStyle, textShadowStyle)}>
+        {children}
       </span>
       <span className={cn(spanStyle, "left-1/2")}></span>
       <span className={cn(spanStyle, "right-1/2")}></span>

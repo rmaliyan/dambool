@@ -23,7 +23,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={`flex w-screen h-screen min-h-screen items-center bg-[url('/assets/background_table_tiled_small.webp')] bg-repeat justify-center font-sans ${inter.variable}`}>
+      <main className={`vignette flex w-screen h-screen min-h-screen items-center bg-[url('/assets/background_table_tiled_small.webp')] bg-repeat justify-center font-sans ${inter.variable}`}>
             <Component {...pageProps} />
       </main>
 

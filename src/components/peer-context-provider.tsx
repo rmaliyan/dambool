@@ -43,9 +43,8 @@ export function PeerContextProvider({
     await game.getCurrentGame.invalidate({ roomId });
   }, [roomId, game]);
 
-  const connectedHandler = useCallback((connection?: DataConnection) => {
+  const connectedHandler = useCallback((connection?: DataConnection) => {   
     if (!connection) {
-      console.log("No connection");
       return;
     }
     // eslint-disable-next-line  @typescript-eslint/no-misused-promises
@@ -53,10 +52,11 @@ export function PeerContextProvider({
       if (event === "game") {
         void handleGameEvent();
         return;
-      }
+      }      
       void handleLobbyEvent();
-    });
-  }, []);
+    });    
+    void handleLobbyEvent();
+  }, [handleLobbyEvent]);
 
   useEffect(() => {
     if (!isPeerIdSuccess) {
@@ -71,11 +71,9 @@ export function PeerContextProvider({
   }
 
   function connect(id: string, peerConnectionOptions?: PeerConnectOption) {
-    console.log(peer);
     if (peer === undefined) {
       return;
     }
-
     return peer.connect(id, peerConnectionOptions);
   }
 
@@ -143,8 +141,6 @@ export function PeerContextProvider({
         void connection.send(event);
       }
     }
-
-    console.log(peerConectionList);
   };
 
   return (

@@ -106,11 +106,19 @@
 - [X] add endpoint that returns current running game
 - [X] revisit UI for 3 and more player game. (attacking and collecting multiple cards) /!\
 - [ ] Add tabindex to clickable elements
-- [ ] Add endpoint to collect cards
-- [ ] Implement card collection to frontend 
+
+- [X] Add vignette to green background
+- [ ] Update UI based on reworked concept from figma
+- [X] Add endpoint to collect cards
+- [X] Implement card collection to frontend 
+- [ ] Add logic for showing corresponding badges    
+- [ ] Make component names correspond to their file names 
+
+- [ ] implement battle area onclick handler /!\
 
 # Issues:
 - [ ] When player is added admin's interface is not refreshed
+- [ ] the longer pages stay open the less responsive they seem to become in terms of refreshing on changes made
 
 
 

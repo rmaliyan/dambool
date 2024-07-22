@@ -113,6 +113,12 @@
 - [X] Implement card collection to frontend 
 - [ ] Add logic for showing corresponding badges    
 - [ ] Make component names correspond to their file names 
+- [ ] change favicon
+- [ ] think of ways to add card movement
+- [X] add face cards
+- [ ] change ace cards to show large suit symbol in center
+
+- [ ] add sounds
 
 - [ ] implement battle area onclick handler /!\
 

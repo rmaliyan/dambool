@@ -18,7 +18,7 @@ export const ButtonComponent: React.FC<ButtonProps> = ({
 }) => {
   const selectableStyle = "hover:z-50 hover:scale-105 active:scale-95";
   const textStyle =
-    "text-transparent bg-clip-text bg-gradient-to-r from-[#c74ee6] to-[#783fa7] select-none text-center font-extrabold uppercase italic tracking-tighter transition-all";
+    "text-lg text-transparent bg-clip-text bg-gradient-to-r from-[#c74ee6] to-[#783fa7] select-none text-center font-extrabold uppercase italic tracking-tighter transition-all";
   const notActiveStyle =
     "group-pointer-events-none pointer-events-none opacity-30";
 

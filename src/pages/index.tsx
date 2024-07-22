@@ -153,10 +153,10 @@ export default function Home() {
         <div className="group absolute flex flex-col items-center justify-center">
           <div className="absolute top-[-235px] h-[430px] w-[430px] rounded-full border-4 border-white border-opacity-5 shadow-xl backdrop-blur-[2px] transition-all group-hover:z-10 group-hover:scale-105 group-hover:backdrop-blur-[4px]"></div>
 
-          <header
+          <div
             className="pointer-events-none absolute top-[-270px] z-20 h-[150px] w-[350px] bg-cover lg:h-[400px] lg:w-[750px]"
             style={{ backgroundImage: `url(${images.logo})` }}
-          ></header>
+          ></div>
 
           <TextButton
             hrefLink="/api/create-room"
@@ -165,8 +165,9 @@ export default function Home() {
           >
             <span>Start</span>
           </TextButton>
+        </div>
 
-          <footer className="absolute top-[300px] flex min-w-[800px] flex-col items-center justify-center text-base font-normal text-zinc-700">
+        <footer className="absolute top-[300px] flex min-w-[800px] flex-col items-center justify-center text-base font-normal text-zinc-700">
             <div className="flex items-center justify-center">
               <span>A non-gambling multiplayer card game. Made by</span>
               <Link
@@ -196,7 +197,7 @@ export default function Home() {
               for his guidance, support and patience.
             </span>
           </footer>
-        </div>
+
       </main>
     </div>
   );

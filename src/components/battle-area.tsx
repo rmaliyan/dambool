@@ -7,9 +7,10 @@ import { cn } from "~/utils/css";
 export type BattleAreaComponentProps = {
     battleArea: BattleAreaModel;  
     className?: string;
+    selectedIndex?: number | null;
   };
 
-export const BattleAreaComponent: React.FC<BattleAreaComponentProps> = ({battleArea, className}) => {
+export const BattleAreaComponent: React.FC<BattleAreaComponentProps> = ({battleArea, className, selectedIndex}) => {
 
     return (
         <div className = {cn("flex flex-row gap-4", className)}>

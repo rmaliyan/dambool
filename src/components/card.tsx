@@ -109,7 +109,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({
       <div className="absolute h-full w-full bg-transparent">
         <div className="flex h-full w-full items-center justify-center">
           
-          <div className={cn("absolute text-center text-5xl", suitColorStyle,
+          <div className={cn("absolute text-center text-5xl select-none", suitColorStyle,
           {["hidden"]: card.rank !== 14},
           )}>{card.suit}</div>
 

@@ -264,6 +264,8 @@ export const gameRouter = createTRPCRouter({
 
       const gameId = gameObjectArray[0]!.gameId;
 
+      console.log ( gameObject.currentState , ctx.playerId)
+
       if (ctx.playerId !== gameObject.currentState.attacker) {
         throw new TRPCError({
           message: "Player attempting to play at wrong turn",

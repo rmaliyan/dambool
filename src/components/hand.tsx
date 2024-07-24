@@ -10,7 +10,7 @@ export type HandComponentProps = {
   isPlayer: boolean;
   isSmaller?: boolean;
   className?: string;
-  trumpSuit: Suit;
+  trumpSuit?: Suit;
   selectedIndex?: number | null;
   onCardClick?: (cardIndex: number) => void;
 };
@@ -46,20 +46,21 @@ export const HandComponent: React.FC<HandComponentProps> = ({
     return orderArray.indexOf(b.suit) - orderArray.indexOf(a.suit);
   }
 
-  const sortedHand = [...hand.cards].sort(compare);
+
+  const sortedHand = isPlayer ? [...hand.cards].sort(compare) : hand.cards;
 
   return (
     <div
       className={cn(
         // "flex w-full shrink-0 items-center justify-center gap-2",
-        "flex w-[500px] shrink-0 items-center justify-center gap-2",
+        "flex w-[320px] shrink-0 items-center justify-center gap-2",
         className,
-        { ["w-[200px]"]: isSmaller },
+        { ["w-[200px]"]: isSmaller },        
       )}
     >
       {sortedHand.map((element) => (
         <div
-          className="relative h-24 max-w-16 flex-auto"
+          className={cn("relative h-24 max-w-16 flex-auto")}
           key={`${element.suit}${element.rank}`}
         >
           <CardComponent

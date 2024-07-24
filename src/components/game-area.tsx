@@ -5,12 +5,145 @@ import {
   DeckAreaComponent,
   BeatenAreaComponent,
   TextButton,
-  BadgeName,
+  BadgeComponent,
   ButtonComponent,
 } from "~/components";
-import { canDefend } from "~/game-logic";
+import { canDefend, CardModel, GameModel, HandModel } from "~/game-logic";
 import { usePeer } from "~/hooks/usePeer";
 import { api } from "~/utils/api";
+
+type PlayerState = "attack" | "defend" | "collect" | "idle" | "addCard";
+
+type PlayerStateBadgeProps = {
+  playerState: PlayerState;
+  playerName: string;
+  className?: string;
+};
+
+const PlayerStateBadge: React.FC<PlayerStateBadgeProps> = ({
+  playerState,
+  playerName,
+  className,
+}) => {
+  // Badge images indicating player status
+  const badgeAttack = "/assets/badge-attack.webp";
+  const badgeDefend = "/assets/badge-defend.webp";
+  const badgeCollect = "/assets/badge-collect.webp";
+  const badgeIdle = "/assets/badge-idle.webp";
+  const badgeAddCard = "/assets/badge-addCard.webp";
+
+  let badgeImage = "";
+
+  switch (playerState) {
+    case "attack":
+      badgeImage = badgeAttack;
+      break;
+    case "defend":
+      badgeImage = badgeDefend;
+      break;
+    case "collect":
+      badgeImage = badgeCollect;
+      break;
+    case "idle":
+      badgeImage = badgeIdle;
+      break;
+    case "addCard":
+      badgeImage = badgeAddCard;
+      break;
+  }
+
+  return (
+    <BadgeComponent
+      className={className}
+      imageUrl={badgeImage}
+      isActive={playerState !== "idle"}
+    >
+      {playerName}
+    </BadgeComponent>
+  );
+};
+
+// Badge images indicating message types
+const badgeInfo = "/assets/badge-info.webp";
+const badgeAlert = "/assets/badge-alert.webp";
+const badgeError = "/assets/badge-error.webp";
+
+const getPlayerState = (playerId: number, game: GameModel) => {
+  if (playerId === game.currentState.defender && game.currentState.collecting) {
+    return "collect";
+  }
+  if (
+    playerId !== game.currentState.attacker &&
+    playerId !== game.currentState.defender
+  ) {
+    return "idle";
+  }
+  if (playerId === game.currentState.attacker && game.currentState.collecting) {
+    return "addCard";
+  }
+  if (playerId === game.currentState.attacker) {
+    return "attack";
+  }
+  if (playerId === game.currentState.defender) {
+    return "defend";
+  }
+  return "idle";
+};
+
+type opponentsProps = {
+  game: GameModel;
+  playerList: {
+    playerId: number;
+    playerName: string;
+  }[];
+  currentPlayerId: number;
+};
+
+const Opponents: React.FC<opponentsProps> = ({
+  game,
+  playerList,
+  currentPlayerId,
+}) => {
+  const opponentList = game.playerList.filter(
+    (elem) => elem !== currentPlayerId,
+  );
+
+  const handPadding = (hand:HandModel) => {
+     return hand.cards.length < 8 ? "pr-5" : "pl-11 pr-20"
+  }
+  
+  return (
+    <>
+      {opponentList.map((opponentId) => {
+        return (
+          <div
+            key={opponentId}
+            className="flex flex-col items-center justify-center rounded-[40px] bg-gradient-to-r from-[#00000031] to-[#31313131] py-10 backdrop-blur-sm backdrop-opacity-30"
+          >
+            <PlayerStateBadge
+              className="ml-5"
+              playerState={getPlayerState(opponentId, game)}
+              playerName={
+                playerList.find((elem) => elem.playerId === opponentId)!
+                  .playerName
+              }
+            />
+
+            {/* <div className="mt-5 flex w-[400px] min-w-[300px] items-center justify-center"> */}
+            <div className={`mt-5 flex w-[500px] min-w-[300px] items-center justify-center ${handPadding(game.hands[game.playerList.indexOf(opponentId)]!)}`}>
+           
+              <HandComponent
+                hand={game.hands[game.playerList.indexOf(opponentId)]!}
+                isPlayer={false}
+                isSmaller={opponentList.length > 1}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
+};
 
 export type GameComponentProps = {
   roomId: number;
@@ -59,7 +192,7 @@ export const GameComponent: React.FC<GameComponentProps> = ({
       },
     });
 
-  const [selectedCard, setSelectedCard] = useState<number | null>(null);
+  const [selectedHandCard, setSelectedCard] = useState<number | null>(null);
 
   ////Add loading
 
@@ -75,9 +208,45 @@ export const GameComponent: React.FC<GameComponentProps> = ({
     mutateCollectCards({ roomId: roomId });
   };
 
-  
+  const handleBattleAreaCardClick = (pairIndex: number) => {
+    // selectedHandCard
 
-  const handleCardClick = (cardIndex: number) => {
+    if (playerId !== game.currentState.defender) {
+      return;
+    }
+
+    if (game.battleArea.pairs[pairIndex]?.defence) {
+      return;
+    }
+
+    const attackCard = game.battleArea.pairs[pairIndex]!.attack;
+
+    if (selectedHandCard === null) {
+      return;
+    }
+
+    const defenceCard =
+      game.hands[game.playerList.indexOf(playerId)]!.cards[selectedHandCard]!;
+
+    const trumpSuit = game.deck.trumpCard.suit;
+
+    if (!canDefend(attackCard, defenceCard, trumpSuit)) {
+      //add visual feedback that selected card can't defend
+      return;
+    }
+
+    mutateDefence({
+      cardIndex: selectedHandCard,
+      roomId: roomId,
+      pairIndex: pairIndex,
+    });
+
+    setSelectedCard(null);
+
+    return;
+  };
+
+  const handleHandCardClick = (cardIndex: number) => {
     if (playerId === game.currentState.attacker) {
       mutateAttack({ cardIndex: cardIndex, roomId: roomId });
       return;
@@ -102,30 +271,21 @@ export const GameComponent: React.FC<GameComponentProps> = ({
         return;
       }
       if (defendablePairs.length === 0) {
-        return
+        return;
       }
-      if (selectedCard === cardIndex) {
-        console.log("🚩");
+      if (selectedHandCard === cardIndex) {
         setSelectedCard(null);
-        console.log("🚩🚩");
-        return
+        return;
       }
-      setSelectedCard(cardIndex);                       
+      setSelectedCard(cardIndex);
     }
   };
-
-
- 
 
   const playerCount = game.playerList.length;
 
   const playerHandIndex = game.playerList.indexOf(playerId);
 
   const allPairsComplete = game.battleArea.pairs.every((pair) => pair.defence);
-
-  // for (const pair of game.battleArea.pairs) {
-  //   if (!pair.defence) {collectPermeted = false}
-  // }
 
   const player0Hand = game.hands[playerHandIndex]!;
 
@@ -136,149 +296,99 @@ export const GameComponent: React.FC<GameComponentProps> = ({
     (player) => player.playerId === player0Id,
   )?.playerName;
 
-  const player1Hand = game.hands[(playerHandIndex + 1) % game.hands.length]!;
-
-  const player1Id = game.playerList[(playerHandIndex + 1) % game.hands.length];
-
-  const player1Name = playerList.find(
-    (player) => player.playerId === player1Id,
-  )?.playerName;
-
-  const player2Hand = game.hands[(playerHandIndex + 2) % game.hands.length]!;
-
-  const player2Id = game.playerList[(playerHandIndex + 2) % game.hands.length];
-
-  const player2Name = playerList.find(
-    (player) => player.playerId === player2Id,
-  )?.playerName;
-
-  const player3Hand = game.hands[(playerHandIndex + 3) % game.hands.length]!;
-
-  const player3Id = game.playerList[(playerHandIndex + 3) % game.hands.length];
-
-  const player3Name = playerList.find(
-    (player) => player.playerId === player3Id,
-  )?.playerName;
-
-  // add logic to check if player can end turn
   const canEndTurn = !(playerId === game.currentState.defender);
 
-  const canCollect = !allPairsComplete && playerId === game.currentState.defender;
+  const canCollect =
+    !allPairsComplete && playerId === game.currentState.defender;
 
-  // Badge images indicating player status
-  const badgeAttack = "/assets/badge-attack.webp";
-  const badgeDefend = "/assets/badge-defend.webp";
-  const badgeCollect = "/assets/badge-collect.webp";
-  const badgeIdle = "/assets/badge-idle.webp";
-  const badgeAddCard = "/assets/badge-addCard.webp";
+  const handPadding = (hand:HandModel) => {
+    return hand.cards.length < 8 ? "" : "pl-11 pr-20"
+  }
 
   return (
-    <div className="flex-flex-col">
+    <div className="flex w-full flex-col gap-6">
 
+      <div className="flex min-h-[36px] items-end justify-center">
+        {game.currentState.collecting && (
+          // fix message width
+          <BadgeComponent className="scale-75" imageUrl={badgeInfo}>
+            {
+              playerList.find(
+                (player) => player.playerId === game.currentState.defender,
+              )?.playerName
+            }{" "}
+            is collecting
+          </BadgeComponent>
+        )}
+      </div>
 
-
-      {game.currentState.collecting && (
-        <div className="block w-full pb-8 text-center text-gray-300">{playerList.find((player) => player.playerId === game.currentState.defender)?.playerName} is collecting</div>
-      )}
-      
-
-      <div className="flex flex-row items-center justify-center gap-3">
-        <div className="flex items-end justify-center">
-          <DeckAreaComponent className="pr-28" deck={game.deck} />
+      <div className="flex flex-col items-center justify-center gap-y-14">
+        <div className="flex items-center justify-center gap-6">
+          <Opponents
+            game={game}
+            playerList={playerList}
+            currentPlayerId={playerId}
+          />
         </div>
 
-        {playerCount > 2 && (
-          <div className="flex w-[100px] items-end justify-center">
-            <div className="flex flex-col items-center justify-center rounded-[50px] bg-gradient-to-r from-[#00000031] to-[#31313131] p-11 backdrop-blur-sm backdrop-opacity-50">
-              <BadgeName className="mb-10" imageUrl={badgeAttack}>
-                {player0Name}
-              </BadgeName>
-              <HandComponent
-                hand={player1Hand}
-                isPlayer={false}
-                isSmaller={true}
-                className="rotate-90"
-                trumpSuit={game.deck.trumpCard.suit}
-              />
-            </div>
+        <div className="flex w-full flex-row items-center justify-center gap-3">
+          <div className="flex w-1/3 items-end justify-end">
+            <DeckAreaComponent className="pr-28" deck={game.deck} />
           </div>
-        )}
 
-        <div className="flex flex-col items-center justify-center ">
-          {playerCount !== 3 && (
-            <div className="flex flex-col items-center justify-center rounded-[50px] bg-gradient-to-r from-[#00000031] to-[#31313131] p-11 backdrop-blur-sm backdrop-opacity-50">
-              <BadgeName
-                className="mb-10"
-                imageUrl={badgeIdle}
-                isActive={false}
-              >
-                {player1Name}
-              </BadgeName>
+          <div className="flex w-1/3 items-center justify-center">
+            <BattleAreaComponent
+              className="flex items-center justify-center"
+              battleArea={game.battleArea}
+              onPairClick={handleBattleAreaCardClick}
+            />
+          </div>
 
-              <HandComponent
-                hand={playerCount === 2 ? player1Hand : player2Hand}
-                isPlayer={false}
-                isSmaller={playerCount !== 2}
-                trumpSuit={game.deck.trumpCard.suit}
-              />
-            </div>
-          )}
+          <div className="flex w-1/3 items-center justify-start">
+            <BeatenAreaComponent className="pl-12" beaten={game.beaten} />
+          </div>
+        </div>
 
-          <BattleAreaComponent
-            className="flex items-center justify-center py-14"
-            battleArea={game.battleArea}
-          />
-
-          <div className="flex flex-col items-center justify-center rounded-[50px] bg-gradient-to-r from-[#00000031] to-[#31313131] p-11 backdrop-blur-sm backdrop-opacity-50">
+        <div>
+          <div className={`flex flex-col items-center w-[550px] justify-center rounded-[50px] bg-gradient-to-r from-[#00000031] to-[#31313131] p-11 backdrop-blur-sm backdrop-opacity-30`}>
             <HandComponent
-              onCardClick={handleCardClick}
+            className={`${handPadding(player0Hand)} w-full`}
+              onCardClick={handleHandCardClick}
               hand={player0Hand}
               isPlayer={true}
               trumpSuit={game.deck.trumpCard.suit}
-              selectedIndex={selectedCard}
+              selectedIndex={selectedHandCard}
             />
-            <BadgeName className="mt-10" imageUrl={badgeAttack}>
-              {player0Name}
-            </BadgeName>
-          </div>
 
-          <ButtonComponent
-            //if (battle area has undefended cards and player is attacker) { handleCollectedCards }
-            //if (player attacker) { handleEndTurn }
-
-            onClick={
-              !allPairsComplete && playerId === game.currentState.defender
-                ? handleCollectedCards
-                : handleEndTurn
-            }
-            className="mt-16 text-2xl"
-            isActive={canEndTurn || canCollect}
-          >
-            {playerId === game.currentState.defender ? (
-              <span>Collect</span>
-            ) : (
-              <span>End Turn</span>
-            )}
-          </ButtonComponent>
-        </div>
-
-        {game.hands.length > 2 && (
-          <div className="flex w-[100px] items-end justify-center">
-            <HandComponent
-              hand={playerCount === 3 ? player2Hand : player3Hand}
-              isPlayer={false}
-              isSmaller={true}
-              className="rotate-90"
-              trumpSuit={game.deck.trumpCard.suit}
+            <PlayerStateBadge
+              className="mt-8"
+              playerState={getPlayerState(player0Id!, game)}
+              playerName={player0Name!}
             />
           </div>
-        )}
-
-        <div className="flex items-start justify-center">
-          <BeatenAreaComponent className="pl-12" beaten={game.beaten} />
         </div>
       </div>
 
+      <div className="flex w-full items-start justify-center">
+        <ButtonComponent
+          //if (battle area has undefended cards and player is attacker) { handleCollectedCards }
+          //if (player attacker) { handleEndTurn }
+
+          onClick={
+            !allPairsComplete && playerId === game.currentState.defender
+              ? handleCollectedCards
+              : handleEndTurn
+          }
+          className="text-2xl"
+          isActive={canEndTurn || canCollect}
+        >
+          {playerId === game.currentState.defender ? (
+            <span>Collect</span>
+          ) : (
+            <span>End Turn</span>
+          )}
+        </ButtonComponent>
+      </div>
     </div>
   );
 };

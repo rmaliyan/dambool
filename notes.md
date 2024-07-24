@@ -119,6 +119,9 @@
 - [ ] change ace cards to show large suit symbol in center
 
 - [ ] add sounds
+- [ ] add deck remaining cards number
+- [ ] add auto turn ending when player has no suitable cards to make a move
+- [ ] Fix Ui breaking for 125% zoom, mb lock for further zoom?
 
 - [ ] implement battle area onclick handler /!\
 

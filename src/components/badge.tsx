@@ -9,7 +9,7 @@ type BadgeProps = {
   iconAltText?: string;
 };
 
-export const BadgeName: React.FC<BadgeProps> = ({
+export const BadgeComponent: React.FC<BadgeProps> = ({
   children,
   className,
   imageUrl,

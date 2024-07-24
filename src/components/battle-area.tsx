@@ -23,8 +23,8 @@ export const BattleAreaComponent: React.FC<BattleAreaComponentProps> = ({
     >
       {battleArea.pairs.map((element, index) => {
         return (
-          <div className="relative h-[128px] max-w-[100px] flex-auto">
-            <div className="absolute h-[128px] w-[96px]" key={index}>
+          <div className="relative h-[128px] max-w-[100px] flex-auto" key={index}>
+            <div className="absolute h-[128px] w-[96px]">
               <CardComponent
                 card={element.attack}
                 className="absolute left-0 top-0"

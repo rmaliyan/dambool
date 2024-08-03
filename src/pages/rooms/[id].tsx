@@ -1,8 +1,12 @@
 import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import { db } from "~/server/db";
 import { eq, and, count } from "drizzle-orm";
-import { rooms, games, roomPlayers } from "~/server/db/schema";
-import { GameModel } from "~/game-logic";
+import {
+  rooms,
+  // games,
+  roomPlayers,
+} from "~/server/db/schema";
+// import { GameModel } from "~/game-logic";
 import { api, createPlayerId, getPlayerId } from "~/utils/api";
 import { GameComponent } from "~/components/game-area";
 import { PeerContextProvider } from "~/components/peer-context-provider";
@@ -31,16 +35,16 @@ export const getServerSideProps = (async (context) => {
     playerId = createPlayerId(context.res);
   }
 
-  let currentGame: GameModel | null = null;
+  // let currentGame: GameModel | null = null;
 
-  const roomRunningGames = await db
-    .select()
-    .from(games)
-    .where(and(eq(games.isFinished, false), eq(games.roomId, roomId)));
+  // const roomRunningGames = await db
+  //   .select()
+  //   .from(games)
+  //   .where(and(eq(games.isFinished, false), eq(games.roomId, roomId)));
 
-  if (roomRunningGames.length != 0) {
-    currentGame = roomRunningGames[0]!.gameJson;
-  }
+  // if (roomRunningGames.length != 0) {
+  //   currentGame = roomRunningGames[0]!.gameJson;
+  // }
 
   const newPlayerCount = await db
     .select({ value: count(roomPlayers.id) })
@@ -76,8 +80,7 @@ export default function CreateRoom({
   playerId,
   ownerId,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-
-  const {data:game} = api.game.getCurrentGame.useQuery({roomId});
+  const { data: game } = api.game.getCurrentGame.useQuery({ roomId });
 
   return (
     <PeerContextProvider roomId={roomId}>
@@ -92,12 +95,7 @@ export default function CreateRoom({
           />
         )}
 
-        {game && (
-          <GameComponent
-            roomId={roomId}
-            playerId={playerId}
-          />
-        )}
+        {game && <GameComponent roomId={roomId} playerId={playerId} />}
       </main>
     </PeerContextProvider>
   );

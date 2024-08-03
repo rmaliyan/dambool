@@ -12,7 +12,7 @@ import {
   boolean
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
-import { GameModel } from "~/game-logic";
+import type { GameModel } from "~/game-logic";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same

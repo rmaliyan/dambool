@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "~/utils/css";
+import Image from "next/image";
 
 type IconElementProps = {
   imageUrl: string;
@@ -31,11 +32,11 @@ export const IconElement: React.FC<IconElementProps> = ({
         { [selectableStyle]: selectable },
       )}
     >
-          <img
+          <Image 
                 className="h-full opacity-100"
                 src={imageUrl}
                 alt={iconAltText}
-              ></img>
+          />
     </div>
   );
 };

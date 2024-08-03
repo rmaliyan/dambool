@@ -4,11 +4,12 @@ import {
   BattleAreaComponent,
   DeckAreaComponent,
   BeatenAreaComponent,
-  TextButton,
   BadgeComponent,
   ButtonComponent,
 } from "~/components";
-import { canDefend, CardModel, GameModel, HandModel } from "~/game-logic";
+import type { GameModel, HandModel } from "~/game-logic";
+import { canDefend } from "~/game-logic";
+
 import { usePeer } from "~/hooks/usePeer";
 import { api } from "~/utils/api";
 
@@ -65,7 +66,9 @@ const PlayerStateBadge: React.FC<PlayerStateBadgeProps> = ({
 
 // Badge images indicating message types
 const badgeInfo = "/assets/badge-info.webp";
-const badgeAlert = "/assets/badge-alert.webp";
+
+// Alert and Error not being used yet
+// const badgeAlert = "/assets/badge-alert.webp";
 const badgeError = "/assets/badge-error.webp";
 
 const getPlayerState = (playerId: number, game: GameModel) => {
@@ -108,10 +111,10 @@ const Opponents: React.FC<opponentsProps> = ({
     (elem) => elem !== currentPlayerId,
   );
 
-  const handPadding = (hand:HandModel) => {
-     return hand.cards.length < 8 ? "pr-5" : "pl-11 pr-20"
-  }
-  
+  const handPadding = (hand: HandModel) => {
+    return hand.cards.length < 8 ? "pr-5" : "pl-11 pr-20";
+  };
+
   return (
     <>
       {opponentList.map((opponentId) => {
@@ -130,8 +133,9 @@ const Opponents: React.FC<opponentsProps> = ({
             />
 
             {/* <div className="mt-5 flex w-[400px] min-w-[300px] items-center justify-center"> */}
-            <div className={`mt-5 flex w-[500px] min-w-[300px] items-center justify-center ${handPadding(game.hands[game.playerList.indexOf(opponentId)]!)}`}>
-           
+            <div
+              className={`mt-5 flex w-[500px] min-w-[300px] items-center justify-center ${handPadding(game.hands[game.playerList.indexOf(opponentId)]!)}`}
+            >
               <HandComponent
                 hand={game.hands[game.playerList.indexOf(opponentId)]!}
                 isPlayer={false}
@@ -176,7 +180,7 @@ export const GameComponent: React.FC<GameComponentProps> = ({
     },
   });
 
-  const { mutate: mutateAttack, error: attackErrorr } =
+  const { mutate: mutateAttack, error: attackError } =
     api.game.attackMove.useMutation({
       async onSuccess() {
         await utils.game.getCurrentGame.invalidate();
@@ -281,7 +285,8 @@ export const GameComponent: React.FC<GameComponentProps> = ({
     }
   };
 
-  const playerCount = game.playerList.length;
+  // not used currently
+  // const playerCount = game.playerList.length;
 
   const playerHandIndex = game.playerList.indexOf(playerId);
 
@@ -301,13 +306,12 @@ export const GameComponent: React.FC<GameComponentProps> = ({
   const canCollect =
     !allPairsComplete && playerId === game.currentState.defender;
 
-  const handPadding = (hand:HandModel) => {
-    return hand.cards.length < 8 ? "" : "pl-11 pr-20"
-  }
+  const handPadding = (hand: HandModel) => {
+    return hand.cards.length < 8 ? "" : "pl-11 pr-20";
+  };
 
   return (
     <div className="flex w-full flex-col gap-6">
-
       <div className="flex min-h-[36px] items-end justify-center">
         {game.currentState.collecting && (
           // fix message width
@@ -320,9 +324,24 @@ export const GameComponent: React.FC<GameComponentProps> = ({
             is collecting
           </BadgeComponent>
         )}
+        {defendError && attackError && (
+          <BadgeComponent className="scale-75" imageUrl={badgeError}>
+            {defendError.message}&nbsp;{attackError.message}
+          </BadgeComponent>
+        )}
+        {attackError && !defendError && (
+          <BadgeComponent className="scale-75" imageUrl={badgeError}>
+            {attackError.message}
+          </BadgeComponent>
+        )}
+        {defendError && !attackError && (
+          <BadgeComponent className="scale-75" imageUrl={badgeError}>
+            {defendError.message}
+          </BadgeComponent>
+        )}
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-y-14">
+      <div className="flex flex-col items-center justify-center gap-y-6">
         <div className="flex items-center justify-center gap-6">
           <Opponents
             game={game}
@@ -336,9 +355,9 @@ export const GameComponent: React.FC<GameComponentProps> = ({
             <DeckAreaComponent className="pr-28" deck={game.deck} />
           </div>
 
-          <div className="flex w-1/3 items-center justify-center">
+          <div className="flex min-h-[208px] w-1/3 items-center justify-center">
             <BattleAreaComponent
-              className="flex items-center justify-center"
+              className="flex items-center justify-center pl-14"
               battleArea={game.battleArea}
               onPairClick={handleBattleAreaCardClick}
             />
@@ -350,9 +369,11 @@ export const GameComponent: React.FC<GameComponentProps> = ({
         </div>
 
         <div>
-          <div className={`flex flex-col items-center w-[550px] justify-center rounded-[50px] bg-gradient-to-r from-[#00000031] to-[#31313131] p-11 backdrop-blur-sm backdrop-opacity-30`}>
+          <div
+            className={`flex w-[550px] flex-col items-center justify-center rounded-[50px] bg-gradient-to-r from-[#00000031] to-[#31313131] p-11 backdrop-blur-sm backdrop-opacity-30`}
+          >
             <HandComponent
-            className={`${handPadding(player0Hand)} w-full`}
+              className={`${handPadding(player0Hand)} w-full`}
               onCardClick={handleHandCardClick}
               hand={player0Hand}
               isPlayer={true}

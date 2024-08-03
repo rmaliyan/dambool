@@ -1,5 +1,6 @@
 import Link from "next/link";
-import React, { ReactNode } from "react";
+import React from "react";
+import type { ReactNode } from "react";
 import { cn } from "~/utils/css";
 
 type TextButtonProps = {

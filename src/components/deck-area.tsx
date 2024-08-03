@@ -1,5 +1,5 @@
 import React from "react";
-import { DeckModel } from "~/game-logic";
+import type { DeckModel } from "~/game-logic";
 import { CardComponent } from "./card";
 import { cn } from "~/utils/css";
 

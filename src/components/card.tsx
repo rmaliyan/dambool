@@ -1,5 +1,5 @@
 import React from "react";
-import { CardModel, Rank } from "~/game-logic";
+import type { CardModel, Rank } from "~/game-logic";
 import { cn } from "~/utils/css";
 
 function getRankText(rank: Rank) {

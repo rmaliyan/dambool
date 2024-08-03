@@ -1,13 +1,13 @@
-import {
+import type {
   CardModel,
   HandModel,
   BattleAreaModel,
   DeckModel,
-  Suits,
-  Ranks,
   GameModel,
   Suit,
 } from "~/game-logic";
+
+import {Suits, Ranks} from "~/game-logic";
 
 export class GameLogicError {
   message = "";

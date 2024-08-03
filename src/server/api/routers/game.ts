@@ -3,10 +3,10 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import {
   addCardMove,
   attackMove,
-  canAttack,
+  // canAttack,
   canDefend,
   discardToBeaten,
-  endAttackTurn,
+  // endAttackTurn,
   endTurn,
   GameLogicError,
   getPlayerHand,

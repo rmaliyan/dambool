@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { startGame } from "~/game-logic";
-import { games, roomPlayers, rooms } from "~/server/db/schema";
+// import { startGame } from "~/game-logic";
+import {
+  //  games,
+  roomPlayers,
+  rooms,
+} from "~/server/db/schema";
 import { and, eq, isNotNull, ne } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -14,8 +18,7 @@ export const roomLobbyRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // console.log(input.isReadyState, input.roomId, ctx.playerId);
-      const ownerId = await ctx.db
+      await ctx.db
         .update(roomPlayers)
         .set({ isReady: input.isReadyState })
         .where(
@@ -42,7 +45,12 @@ export const roomLobbyRouter = createTRPCRouter({
           isReady: roomPlayers.isReady,
         })
         .from(roomPlayers)
-        .where(and(eq(roomPlayers.roomId, input.roomId),eq(roomPlayers.isRemoved, false)))
+        .where(
+          and(
+            eq(roomPlayers.roomId, input.roomId),
+            eq(roomPlayers.isRemoved, false),
+          ),
+        )
         .orderBy(roomPlayers.id);
 
       return currentRoomPlayers;

@@ -1,10 +1,10 @@
-import React, { ReactNode } from "react";
+import React from "react";
+import type { ReactNode } from "react";
 import { cn } from "~/utils/css";
 
 type ButtonProps = {
   children?: ReactNode;
   className?: string;
-  hrefLink?: string;
   isActive?: boolean;
   onClick?: () => void;
 };
@@ -12,7 +12,6 @@ type ButtonProps = {
 export const ButtonComponent: React.FC<ButtonProps> = ({
   children,
   className,
-  hrefLink,
   isActive = true,
   onClick,
 }) => {
@@ -35,23 +34,5 @@ export const ButtonComponent: React.FC<ButtonProps> = ({
     >
       <div className={cn("mt-1 pl-2 pr-3", textStyle)}>{children}</div>
     </div>
-
-    // <div
-    //   className={cn(
-    //     textButtonStyle,
-    //     selectableStyle,
-    //     { [notActiveStyle]: !isActive },
-    //     { [cursorStyle]: !hrefLink },
-    //     className,
-    //   )}
-    //   href={hrefLink!}
-    //   onClick={onClick}
-    // >
-    //   <span className={cn(gradientTextStyle, textShadowStyle)}>
-    //     {children}
-    //   </span>
-    //   <span className={cn(spanStyle, "left-1/2")}></span>
-    //   <span className={cn(spanStyle, "right-1/2")}></span>
-    // </div>
   );
 };

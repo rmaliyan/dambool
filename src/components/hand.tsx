@@ -1,5 +1,5 @@
 import React from "react";
-import { CardModel, HandModel, Suit } from "~/game-logic";
+import type { CardModel, HandModel, Suit } from "~/game-logic";
 import { CardComponent } from "./card";
 import { cn } from "~/utils/css";
 

@@ -125,6 +125,10 @@
 
 - [ ] implement battle area onclick handler /!\
 
+- [ ] add favicon
+- [ ] add celebration badge to notify winner, mb a separate pop-up banner?
+- [ ] check if Image components behave correctly wherrever used. Use MR logo in  room-lobby as reference.
+
 # Issues:
 - [ ] When player is added admin's interface is not refreshed
 - [ ] the longer pages stay open the less responsive they seem to become in terms of refreshing on changes made

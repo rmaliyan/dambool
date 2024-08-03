@@ -5,6 +5,7 @@ import { TextButton } from "./button-text";
 import { api } from "~/utils/api";
 import { cn } from "~/utils/css";
 import { usePeer } from "~/hooks/usePeer";
+import Image from "next/image";
 
 export type LobbyComponentProps = {
   className?: string;
@@ -33,7 +34,7 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
 
   const { triggerEvent } = usePeer()!;
 
-  const { mutate: mutateStartGame, error } = api.game.startGame.useMutation({
+  const { mutate: mutateStartGame, error:StartGameError } = api.game.startGame.useMutation({
     async onSuccess() {
       await utils.game.getCurrentGame.invalidate();
       triggerEvent("game");
@@ -42,7 +43,7 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
 
   const { mutateAsync: mutateSetReady, error: setReadyError } =
     api.roomLobby.setReady.useMutation({
-      async onSuccess(input) {
+      async onSuccess(_) {
         await utils.roomLobby.getPlayerList.invalidate();
         triggerEvent("lobby");
       },
@@ -78,6 +79,9 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
 
   const handleStartGame = () => {
     mutateStartGame({ roomId });
+    if (StartGameError) {
+      console.log (StartGameError.message)
+    };
   };
 
   const handleCopyRoomUrl = async () => {
@@ -86,6 +90,9 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
 
   const handleSetReady = async () => {
     await mutateSetReady({ roomId, isReadyState: !isReady });
+    if (setReadyError) {
+      console.log (setReadyError)
+    };
   };
 
   const handleEditName = (playerName: string) => {
@@ -101,7 +108,7 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
       alert("You don't have the right, O you don't have the right!");
     }
     mutateRmovePlayer({ roomId, deletedPlayerId });
-  };
+  }; 
 
   return (
     // isSmaller = isSmaller ?? false;
@@ -113,11 +120,11 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
       )}
     >
       <Link href="/" target="_blank">
-        <img
+        <Image
           className="pointer-events: none w-[350px]"
           src="/assets/dambool-logo-final-300.webp"
           alt="dambool logo"
-        ></img>
+        />
       </Link>
 
       {
@@ -161,7 +168,7 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
       {/* <hr className="my-2 h-px w-[70%] border-[1px] bg-neutral-300"></hr> */}
 
       <div className="flex flex-col">
-        {currentRoomPlayers!.map((player, index) => (
+        {currentRoomPlayers!.map((player) => (
           <div className="flex items-center gap-2" key={player.playerId}>
             <div
               className={cn({

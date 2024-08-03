@@ -1,5 +1,5 @@
 import React from "react";
-import { BattleAreaModel } from "~/game-logic";
+import type { BattleAreaModel } from "~/game-logic";
 import { CardComponent } from "./card";
 import { cn } from "~/utils/css";
 

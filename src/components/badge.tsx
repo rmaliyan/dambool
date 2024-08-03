@@ -1,4 +1,6 @@
-import React, { ReactNode } from "react";
+import React from "react";
+import type { ReactNode } from "react";
+import Image from "next/image"
 import { cn } from "~/utils/css";
 
 type BadgeProps = {
@@ -30,11 +32,11 @@ export const BadgeComponent: React.FC<BadgeProps> = ({
         className,
       )}
     >
-      <img
+      <Image 
         className="absolute -left-12 -top-9 h-[100px] object-contain"
         src={imageUrl}
         alt={iconAltText}
-      ></img>
+      />
       <span className="block select-none truncate bg-gradient-to-l from-[#7e7e7e] to-[#535353] bg-clip-text px-1 text-center text-lg font-extrabold italic tracking-tighter text-transparent transition-all">
         {children}
       </span>

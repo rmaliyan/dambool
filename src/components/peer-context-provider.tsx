@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { DamboolEventType, PeerContext } from "../context/PeerContext";
-import Peer, { PeerJSOption, PeerConnectOption, DataConnection } from "peerjs";
+import { PeerContext } from "../context/PeerContext";
+import type { DamboolEventType } from "../context/PeerContext";
+import Peer from "peerjs";
+import type { PeerJSOption, PeerConnectOption, DataConnection } from "peerjs";
+
 import { api } from "~/utils/api";
 
 type PeerContextProviderProps = {
@@ -8,19 +11,19 @@ type PeerContextProviderProps = {
   roomId: number;
 };
 
-type DamboolEvent = {
-  type: DamboolEventType;
-  serialNumber: number;
-  senderId: string;
-};
+// type DamboolEvent = {
+//   type: DamboolEventType;
+//   serialNumber: number;
+//   senderId: string;
+// };
 
 export function PeerContextProvider({
   children,
   roomId,
-  peerOptions,
+  // peerOptions,
 }: React.PropsWithChildren<PeerContextProviderProps>) {
   const [peer, setPeer] = useState<Peer | undefined>(undefined);
-  const [connected, setConnected] = useState(false);
+  // const [connected, setConnected] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: peerId, isSuccess: isPeerIdSuccess } =
@@ -43,20 +46,23 @@ export function PeerContextProvider({
     await game.getCurrentGame.invalidate({ roomId });
   }, [roomId, game]);
 
-  const connectedHandler = useCallback((connection?: DataConnection) => {   
-    if (!connection) {
-      return;
-    }
-    // eslint-disable-next-line  @typescript-eslint/no-misused-promises
-    connection.on("data", (event) => {
-      if (event === "game") {
-        void handleGameEvent();
+  const connectedHandler = useCallback(
+    (connection?: DataConnection) => {
+      if (!connection) {
         return;
-      }      
+      }
+      // eslint-disable-next-line  @typescript-eslint/no-misused-promises
+      connection.on("data", (event) => {
+        if (event === "game") {
+          void handleGameEvent();
+          return;
+        }
+        void handleLobbyEvent();
+      });
       void handleLobbyEvent();
-    });    
-    void handleLobbyEvent();
-  }, [handleLobbyEvent]);
+    },
+    [handleLobbyEvent, handleGameEvent],
+  );
 
   useEffect(() => {
     if (!isPeerIdSuccess) {
@@ -70,22 +76,15 @@ export function PeerContextProvider({
     setPeer(id ? new Peer(id, peerOptions) : new Peer());
   }
 
-  function connect(id: string, peerConnectionOptions?: PeerConnectOption) {
-    if (peer === undefined) {
-      return;
-    }
-    return peer.connect(id, peerConnectionOptions);
-  }
+  // function disconnect() {
+  //   if (peer === undefined) {
+  //     return;
+  //   }
 
-  function disconnect() {
-    if (peer === undefined) {
-      return;
-    }
-
-    peer.disconnect();
-    peer.destroy();
-    setPeer(undefined);
-  }
+  //   peer.disconnect();
+  //   peer.destroy();
+  //   setPeer(undefined);
+  // }
 
   useEffect(() => {
     if (peer === undefined) {
@@ -97,22 +96,29 @@ export function PeerContextProvider({
       setIsOpen(true);
     };
 
-    const disconnectedHandler = () => {
-      setConnected(true);
-    };
+    // const disconnectedHandler = () => {
+    //   setConnected(true);
+    // };
 
     peer.on("connection", connectedHandler);
-    peer.on("disconnected", disconnectedHandler);
+    // peer.on("disconnected", disconnectedHandler);
     peer.on("open", openHandler);
 
     return () => {
       peer.off("connection", connectedHandler);
-      peer.off("disconnected", disconnectedHandler);
+      // peer.off("disconnected", disconnectedHandler);
       peer.off("open", openHandler);
     };
-  }, [peer, roomId]);
+  }, [peer, roomId, connectedHandler, mutatePeerId]);
 
   useEffect(() => {
+    function connect(id: string, peerConnectionOptions?: PeerConnectOption) {      
+      if (peer === undefined) {
+        return;
+      }
+      return peer.connect(id, peerConnectionOptions);
+    }
+
     if (!isOpen) {
       return;
     }
@@ -124,7 +130,7 @@ export function PeerContextProvider({
       const connection = connect(peer);
       connectedHandler(connection);
     }
-  }, [peerIdList, isPeerIdListSuccess, isOpen]);
+  }, [peerIdList, isPeerIdListSuccess, isOpen, peer, connectedHandler]);
 
   const triggerEvent = (event: DamboolEventType) => {
     if (!peer) {

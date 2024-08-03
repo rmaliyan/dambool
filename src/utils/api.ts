@@ -6,10 +6,10 @@
  */
 import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
-import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
-import { ServerResponse } from "http";
-import { NextApiRequest } from "next";
-import { NextApiRequestCookies } from "next/dist/server/api-utils";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import type { ServerResponse } from "http";
+// import { NextApiRequest } from "next";
+import type { NextApiRequestCookies } from "next/dist/server/api-utils";
 import superjson from "superjson";
 
 import { type AppRouter } from "~/server/api/root";

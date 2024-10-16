@@ -1,9 +1,10 @@
 import React from "react";
 import { cn } from "~/utils/css";
-import Image from "next/image";
+import Image  from "next/image"
+import type { StaticImageData } from "next/image"
 
 type IconElementProps = {
-  imageUrl: string;
+  imageUrl: string | StaticImageData;
   iconAltText: string;
   className?: string;
   selectable?: boolean;
@@ -31,12 +32,15 @@ export const IconElement: React.FC<IconElementProps> = ({
         className,        
         { [selectableStyle]: selectable },
       )}
-    >
-          <Image 
-                className="h-full opacity-100"
-                src={imageUrl}
-                alt={iconAltText}
-          />
+    >     
+          <div className="relative w-[18px] h-[18px]">
+            <Image 
+                  className="h-full opacity-100"
+                  src={imageUrl}
+                  alt={iconAltText}
+                  fill={true}
+            />        
+          </div>
     </div>
   );
 };

@@ -10,6 +10,16 @@ import {
 import type { GameModel, HandModel } from "~/game-logic";
 import { canDefend } from "~/game-logic";
 
+
+import badgeAttack from "~/assets/badges/badge-attack.webp";
+import badgeDefend from "~/assets/badges/badge-attack.webp";
+import badgeCollect from "~/assets/badges/badge-collect.webp";
+import badgeIdle from "~/assets/badges/badge-idle.webp";
+import badgeAddCard from "~/assets/badges/badge-addCard.webp";
+
+import badgeInfo from "~/assets/badges/badge-info.webp";
+import badgeError from "~/assets/badges/badge-error.webp";
+
 import { usePeer } from "~/hooks/usePeer";
 import { api } from "~/utils/api";
 
@@ -27,13 +37,13 @@ const PlayerStateBadge: React.FC<PlayerStateBadgeProps> = ({
   className,
 }) => {
   // Badge images indicating player status
-  const badgeAttack = "/assets/badge-attack.webp";
-  const badgeDefend = "/assets/badge-defend.webp";
-  const badgeCollect = "/assets/badge-collect.webp";
-  const badgeIdle = "/assets/badge-idle.webp";
-  const badgeAddCard = "/assets/badge-addCard.webp";
+  // const badgeAttack = "/assets/badge-attack.webp";
+  // const badgeDefend = "/assets/badge-defend.webp";
+  // const badgeCollect = "/assets/badge-collect.webp";
+  // const badgeIdle = "/assets/badge-idle.webp";
+  // const badgeAddCard = "/assets/badge-addCard.webp";
 
-  let badgeImage = "";
+  let badgeImage;
 
   switch (playerState) {
     case "attack":
@@ -65,11 +75,11 @@ const PlayerStateBadge: React.FC<PlayerStateBadgeProps> = ({
 };
 
 // Badge images indicating message types
-const badgeInfo = "/assets/badge-info.webp";
+// const badgeInfo = "/assets/badge-info.webp";
 
 // Alert and Error not being used yet
 // const badgeAlert = "/assets/badge-alert.webp";
-const badgeError = "/assets/badge-error.webp";
+// const badgeError = "/assets/badge-error.webp";
 
 const getPlayerState = (playerId: number, game: GameModel) => {
   if (playerId === game.currentState.defender && game.currentState.collecting) {

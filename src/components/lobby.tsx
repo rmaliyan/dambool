@@ -6,6 +6,34 @@ import { api } from "~/utils/api";
 import { cn } from "~/utils/css";
 import { usePeer } from "~/hooks/usePeer";
 import Image from "next/image";
+import type{ StaticImageData } from "next/image";
+
+import DamboolLogo from "~/assets/dambool-logo-final-300.webp";
+import IconCrown from "~/assets/icons/icon-crown.svg";
+import IconEdit from "~/assets/icons/icon-edit.svg";
+import IconDelete from "~/assets/icons/icon-delete.svg";
+import IconLoading from "~/assets/icons/icon-loading.svg";
+import IconCheck from "~/assets/icons/icon-check.svg";
+
+//Try to figur out later how to customize svg imput as a certain type. Check custom.d.ts in root
+// const IconCrownUrl:StaticImageData = IconCrown;
+// const IconEditUrl:StaticImageData = IconEdit;
+// const IconDeleteUrl:StaticImageData = IconDelete;
+// const IconLoadingUrl:StaticImageData = IconLoading;
+// const IconCheckUrl:StaticImageData = IconCheck;
+
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const IconCrownUrl:StaticImageData = IconCrown;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const IconEditUrl:StaticImageData = IconEdit;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const IconDeleteUrl:StaticImageData = IconDelete;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const IconLoadingUrl:StaticImageData = IconLoading;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const IconCheckUrl:StaticImageData = IconCheck;
+
 
 export type LobbyComponentProps = {
   className?: string;
@@ -120,11 +148,16 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
       )}
     >
       <Link href="/" target="_blank">
-        <Image
-          className="pointer-events: none w-[350px]"
+        {/* <Image
+          className="pointer-events-none w-[350px]"
           src="/assets/dambool-logo-final-300.webp"
           alt="dambool logo"
-        />
+        /> */}
+        <div className="relative w-[350px] h-[188px]">               
+                <Image 
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                src={DamboolLogo} alt="DamboolLogo" fill={true} /> 
+        </div>
       </Link>
 
       {
@@ -176,8 +209,8 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
               })}
             >
               <IconElement
-                imageUrl="/assets/icon-crown.svg"
-                iconAltText="crown icon"
+                imageUrl={IconCrownUrl}
+                iconAltText="Icon Crown"
                 selectable={false}
               />
             </div>
@@ -188,8 +221,8 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
               })}
             >
               <IconElement
-                imageUrl="/assets/icon-check.svg"
-                iconAltText="check icon"
+                imageUrl={IconCheckUrl}
+                iconAltText="Icon Check"
                 selectable={false}
               />
             </div>
@@ -200,8 +233,8 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
               })}
             >
               <IconElement
-                imageUrl="/assets/icon-loading.svg"
-                iconAltText="check icon"
+                imageUrl={IconLoadingUrl}
+                iconAltText="Icon Loading"
                 selectable={false}
               />
             </div>
@@ -226,8 +259,8 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
               })}
             >
               <IconElement
-                imageUrl="/assets/icon-edit.svg"
-                iconAltText="edit icon"
+                imageUrl={IconEditUrl}
+                iconAltText="Icon Edit"
                 selectable={true}
                 onClick={() => handleEditName(player.playerName)}
               />
@@ -241,8 +274,8 @@ export const LobbyComponent: React.FC<LobbyComponentProps> = ({
               })}
             >
               <IconElement
-                imageUrl="/assets/icon-delete.svg"
-                iconAltText="delete icon"
+                imageUrl={IconDeleteUrl}
+                iconAltText="Icon Delete"
                 selectable={true}
                 onClick={() => handleRemovePlayer(player.playerId)}
               />

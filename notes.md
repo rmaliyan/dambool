@@ -132,8 +132,7 @@
 # Issues:
 - [ ] When player is added admin's interface is not refreshed
 - [ ] the longer pages stay open the less responsive they seem to become in terms of refreshing on changes made
-
-
+- [ ] in lobby.tsx there is an issue with importing svg icons. Currently I made a workaround disabling eslint errors. Later I should probably change icons to font or figure out a way to customise svg input type (Check custom.d.ts in root and corresponding include entry in tsconfig.json)
 
 # Long-term tasks:
 - [ ] Turn all icons into font

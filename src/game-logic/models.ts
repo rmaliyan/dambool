@@ -29,7 +29,8 @@ export type DeckModel = {
 };
 
 export type BeatenModel = {
-  cards: CardModel[];};
+  cards: CardModel[];
+};
 
 export type CurrentState = { 
   turnCount: number; 

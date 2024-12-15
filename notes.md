@@ -129,6 +129,13 @@
 - [ ] add celebration badge to notify winner, mb a separate pop-up banner?
 - [ ] check if Image components behave correctly wherrever used. Use MR logo in  room-lobby as reference.
 
+# Newer tasks:
+- [ ] Check public/assets and src/assets for duplicates. Maybe store all assets in src.
+- [ ] Fix background pattern (colors, detalisation)
+- [ ] Fix first page for mobile view
+- [ ] Prepare Ui design for gameboard mobile view
+- [ ] Make my logo and Gor's logos lighter grey color (maybe white) to better communicate them being links.
+
 # Issues:
 - [ ] When player is added admin's interface is not refreshed
 - [ ] the longer pages stay open the less responsive they seem to become in terms of refreshing on changes made
@@ -138,4 +145,4 @@
 - [ ] Turn all icons into font
 - [ ] Check how I declare default prop values in components. change to direct equality where nullish coalescing operator is used (??). See button-text component for example.
 - [ ] Compose a describtion, listing used technology stack:
-A multiplayer online card game, built using a TypeScript stack, running on Node.js, using tRPC for API management, Zod for validation, and a SQL database with an drizzle ORM for data persistence.
+A multiplayer online card game, built using a T3 stack - Typescript running on Node.js, using tRPC for API management, Zod for validation, and a SQL database with an drizzle ORM for data persistence.
